@@ -8,14 +8,16 @@
     <style>
         /* Base styles */
         body {
-            background: linear-gradient(135deg, #46178f 0%, #2b0f59 100%);
+            background: linear-gradient(135deg, #2b0f59 0%, #1a0936 100%);
             color: white;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
 
         main {
             padding: 10px;
+            min-height: 100vh;
         }
 
         section {
@@ -24,6 +26,7 @@
             display: flex;
             flex-direction: column;
             background: transparent !important;
+            box-shadow: none !important;
         }
 
         #quiz {
@@ -100,8 +103,8 @@
 
         /* Question Styles */
         .question {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000 !important;
             font-size: 2rem !important;
             padding: 2.5rem !important;
             margin: 1.5rem;
@@ -112,11 +115,14 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
 
-        /* Ajouter cette règle pour forcer la couleur du texte */
-        .question, .question * {
-            color: #333 !important;
+        /* Ajouter une règle plus spécifique pour la question */
+        #question.question,
+        #question.question * {
+            color: #220420 !important;
         }
 
         /* Choices Grid */
@@ -124,16 +130,19 @@
             flex: 1;
             gap: 1rem !important;
             padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: minmax(min-content, 1fr);
         }
 
         .choice {
             margin: 0;
             display: flex;
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
             font-size: 1.5rem;
             border-radius: 1.5rem !important;
-            padding: 10px !important;
+            padding: 15px 15px 10px 15px !important;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
@@ -142,6 +151,18 @@
             border: none;
             cursor: pointer;
             transition: transform 0.2s ease !important;
+            height: auto !important;
+            min-height: 100px !important;
+        }
+
+        .choice > div {
+            width: 100%;
+            padding: 15px 15px 10px 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
         }
 
         .choice:hover {
@@ -214,22 +235,25 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background: linear-gradient(135deg, #46178f 0%, #2b0f59 100%);
+            background: linear-gradient(135deg, #2b0f59 0%, #1a0936 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
+            text-align: center;
         }
 
         .loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: transparent;
             border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
         }
 
         .loader-text {
@@ -238,32 +262,25 @@
             font-size: 1.25rem;
             font-weight: 500;
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .loader-dots {
+        @keyframes loadingDots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        .loader-dots::after {
+            content: '';
             display: inline-block;
-            width: 20px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes dots {
-            0%, 20% {
-                content: '.';
-            }
-            40% {
-                content: '..';
-            }
-            60% {
-                content: '...';
-            }
-            80%, 100% {
-                content: '';
-            }
+            width: 24px;
+            text-align: left;
+            animation: loadingDots 1.5s infinite;
         }
 
         .fade-out {
@@ -300,6 +317,53 @@
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
+
+        /* Styles pour le dialogue */
+        .prose {
+            line-height: 1.6;
+        }
+
+        .prose h3 {
+            color: #1a202c;
+            margin-top: 2em;
+            margin-bottom: 1em;
+        }
+
+        .prose p {
+            margin-bottom: 1em;
+        }
+
+        .prose section {
+            margin-bottom: 2em;
+        }
+
+        /* Pour la scrollbar personnalisée */
+        .overflow-y-auto {
+            scrollbar-width: thin;
+            scrollbar-color: #CBD5E0 #EDF2F7;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #EDF2F7;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #CBD5E0;
+            border-radius: 4px;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -313,9 +377,14 @@
         <section class="bg-white shadow-lg">
             <div class="flex justify-between items-center px-4">
                 <h1 class="text-2xl font-bold text-center text-blue-600">Quiz Interactif</h1>
-                <button id="restart-btn" class="text-red-500 px-4 py-2 rounded-lg hover:text-red-700 transition-all font-bold">
-                    Recommencer
-                </button>
+                <div class="flex gap-4">
+                    <button id="source-btn" class="text-blue-500 px-4 py-2 rounded-lg hover:text-blue-700 transition-all font-bold">
+                        Source
+                    </button>
+                    <button id="restart-btn" class="text-red-500 px-4 py-2 rounded-lg hover:text-red-700 transition-all font-bold">
+                        Recommencer
+                    </button>
+                </div>
             </div>
             
             <div class="progress-container mt-4">
@@ -344,6 +413,22 @@
         </section>
     </main>
 
+    <div id="source-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Source du contenu</h2>
+                <button id="close-dialog" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="source-content" class="prose max-w-none text-gray-600">
+                <!-- Le contenu sera injecté ici via JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script>
         const QUIZ_CONFIG = {
             QUESTION_TIME: 20,
@@ -369,7 +454,7 @@
                 this.nextQuestion = null;
                 this.score = 0;
                 this.questionCount = 0;
-                this.totalQuestions = 15;
+                this.totalQuestions = 30;
                 this.timeLeft = 0;
                 this.timerId = null;
                 this.isLoading = true;
@@ -472,15 +557,13 @@
             }
 
             showLoader() {
-                // Cacher seulement la zone de question et choix
                 this.questionElement.style.display = 'none';
                 this.choicesElement.style.display = 'none';
                 
-                // Créer et afficher un mini loader
                 const loaderHTML = `
                     <div class="flex flex-col items-center justify-center p-8">
                         <div class="loader"></div>
-                        <div class="loader-text mt-4">
+                        <div class="loader-text">
                             Chargement de la question<span class="loader-dots"></span>
                         </div>
                     </div>`;
@@ -503,22 +586,22 @@
                     this.questionElement.textContent = this.currentQuestion.question;
                     this.choicesElement.innerHTML = '';
                     
-                    // Nouvelles couleurs aléatoires (sans vert ni rouge)
+                    // Nouvelles couleurs plus contrastées
                     const colors = [
-                        ['#FF8E1C', '#E67E00'], // Orange
-                        ['#1368CE', '#0A4C9E'], // Bleu
-                        ['#8A2BE2', '#6A1CB2'], // Violet
-                        ['#FF69B4', '#FF1493'], // Rose
-                        ['#4B0082', '#2E0854'], // Indigo
-                        ['#FF8C00', '#CC7000'], // Orange foncé
-                        ['#1E90FF', '#0066CC'], // Bleu ciel
-                        ['#9370DB', '#7B52C7']  // Violet moyen
+                        ['#FF4500', '#CC3700'], // Rouge-Orange vif
+                        ['#4169E1', '#1E40AF'], // Bleu royal
+                        ['#9400D3', '#6B238E'], // Violet foncé
+                        ['#FF1493', '#C71585'], // Rose foncé
+                        ['#1E90FF', '#0066CC'], // Bleu dodger
+                        ['#FF8C00', '#E67300'], // Orange foncé
+                        ['#8B008B', '#660066'], // Magenta foncé
+                        ['#4B0082', '#36005F']  // Indigo foncé
                     ].sort(() => Math.random() - 0.5);
                     
                     // Afficher les choix dans l'ordre original
                     this.currentQuestion.choices.forEach((choice, index) => {
                         const button = document.createElement('button');
-                        button.className = 'choice h-32 rounded-lg flex items-center justify-center text-xl';
+                        button.className = 'choice rounded-lg flex items-center justify-center text-xl';
                         button.style.background = `linear-gradient(135deg, ${colors[index][0]} 0%, ${colors[index][1]} 100%)`;
                         button.innerHTML = `
                             <div>
@@ -534,7 +617,7 @@
             }
 
             showFinalScore() {
-                this.questionElement.textContent = `Quiz termin! Score final: ${this.score} points`;
+                this.questionElement.textContent = `Quiz terminé! <br/>Score final: ${this.score} points 👍`;
                 this.choicesElement.innerHTML = '';
                 // Cacher les éléments de jeu
                 document.querySelector('.timer-container').style.display = 'none';
@@ -707,6 +790,103 @@
         // Initialisation du quiz
         document.addEventListener('DOMContentLoaded', () => {
             new Quiz();
+
+            const sourceBtn = document.getElementById('source-btn');
+            const sourceDialog = document.getElementById('source-dialog');
+            const closeDialog = document.getElementById('close-dialog');
+            const sourceContent = document.getElementById('source-content');
+
+            // Contenu formaté en HTML
+            const sourceText = `
+                <div class="space-y-6">
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800">Unité 9 - La Belle Époque</h3>
+                        <p class="mt-4">Le Québec a connu plusieurs périodes de prospérité dans son histoire. La première se déroule entre 1900 et 1914. On appelle cette période la Belle Époque. La Belle Époque prendra fin en 1914 avec la Première Guerre mondiale.</p>
+                        <p class="mt-4">Pendant cette période de prospérité, les hommes d'affaires s'enrichissent, notamment à cause d'un boom économique dans la province (un développement rapide de l'économie du Québec). Malgré ce boom économique, les banques refusent de prêter de l'argent aux agriculteurs. C'est pourquoi Alphonse Desjardins mettra sur pied la toute première Caisse populaire en 1900.</p>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">L'urbanisation :</h4>
+                        <p class="mt-2">Au début du 20e siècle, énormément de personnes partent vivre en ville. Les villes se développent rapidement. Ce phénomène s'appelle l'urbanisation. Dans les villes, on voit apparaître des gratte-ciels et des grands magasins. Les tramways permettent aux quartiers éloignés du centre-ville de se développer puisque les travailleurs peuvent désormais habiter plus loin de leur lieu de travail.</p>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Les inventions :</h4>
+                        <p class="mt-2">La Belle Époque est une période de découvertes scientifiques et de progrès technologiques. Plusieurs inventions viendront changer et faciliter la vie des Québécois. L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société. L'électricité permet d'améliorer l'éclairage des rues, des maisons et des commerces. On voit aussi apparaître des appareils comme l'aspirateur et le grille-pain. La bicyclette fait aussi son entrée comme moyen de transport, et l'avion effectue son premier vol au début 1900.</p>
+                    </section>
+
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800">Unité 10 - La Première Guerre mondiale</h3>
+                        <p class="mt-4">Le 4 août 1914, la Grande-Bretagne déclare la guerre à l'Allemagne. Cette déclaration de guerre sera le début de la Première Guerre mondiale en Europe. On l'appelle ainsi, car elle touche plusieurs pays qui ont formé des alliances entre eux. Puisque le Canada fait partie de l'Empire britannique, ce dernier entre lui aussi en guerre.</p>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">La division au sein de la population :</h4>
+                        <p class="mt-2">Au départ, l'armée canadienne fait appel aux volontaires pour joindre ses rangs. Beaucoup de gens répondent à l'appel dont plusieurs infirmières. Les francophones et les anglophones du pays n'ont pas la même opinion quant à leur participation à la guerre :</p>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Les francophones sont contre leur participation à la guerre, car ils disent qu'elle ne les concerne pas.</li>
+                            <li>Les anglophones sont pour leur participation à la guerre, car ils croient que c'est le devoir du Canada de soutenir la Grande-Bretagne dans ce conflit.</li>
+                        </ul>
+                        <p class="mt-4">La Première Guerre mondiale prend fin le 11 novembre 1918.</p>
+                    </section>
+
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800">Unité 11 - Les Années folles</h3>
+                        <p class="mt-4">Les Années folles correspondent à la période après la Première Guerre mondiale, soit de 1918 à 1929.</p>
+                        <p class="mt-4">Plusieurs éléments caractérisent cette nouvelle période de prospérité :</p>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Les privations dues à la guerre diminuent.</li>
+                            <li>La consommation augmente.</li>
+                            <li>L'utilisation de l'automobile augmente.</li>
+                            <li>Les conditions de vie s'améliorent.</li>
+                            <li>Le nombre d'heures de travail diminue.</li>
+                            <li>Les salaires augmentent.</li>
+                            <li>Les prix des produits baissent.</li>
+                            <li>Il y a un relâchement des mœurs (les comportements sont plus libres, moins cadrés par la religion).</li>
+                            <li>Arrivée d'une nouvelle classe de travailleurs : les employés de bureau et de magasins.</li>
+                        </ul>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Le féminisme et les inégalités :</h4>
+                        <p class="mt-2">Dans les années 20, les femmes subissent encore plusieurs inégalités :</p>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Les femmes sont moins bien payées que les hommes.</li>
+                            <li>Les femmes mariées doivent arrêter de travailler.</li>
+                            <li>Les femmes n'ont pas le droit de voter.</li>
+                        </ul>
+                        <p class="mt-4">Pour mettre fin à ces inégalités et à la discrimination envers les femmes, celles-ci se regroupent dans des mouvements féministes. Ces mouvements exigent plus de droits pour les femmes.</p>
+                    </section>
+
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800">Unité 12 - La Grande Crise</h3>
+                        <p class="mt-4">Le 24 octobre 1929, la Bourse de New-York chute brutalement. Les actions sur le marché perdent énormément de valeur et les propriétaires de ces actions les vendent avant de perdre trop d'argent. Cela aggrave la situation et cause ce qu'on appelle un « krach ». Ce dernier sera la cause de la Grande Crise, une crise économique qui durera 10 ans.</p>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Les conséquences de la Grande Crise au Canada :</h4>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Les exportations de produits diminuent de façon importante.</li>
+                            <li>Plusieurs usines et entreprises ferment.</li>
+                            <li>Plusieurs pertes d'emplois.</li>
+                            <li>Augmentation de la pauvreté (surtout en ville).</li>
+                        </ul>
+                        <h4 class="text-lg font-semibold text-gray-800 mt-6">La charité et l'aide des gouvernements :</h4>
+                        <p class="mt-2">Pendant la Grande Crise, les gens dans le besoin devaient se tourner vers des organismes de charité pour combler certains besoins. Les organismes de charité distribuaient :</p>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Des vêtements et de la nourriture.</li>
+                        </ul>
+                        <p class="mt-4">De leur côté, les gouvernements du Canada et du Québec mettent des programmes en place pour aider les gens dans le besoin :</p>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li>Ils offrent des coupons échangeables contre de la nourriture et des vêtements.</li>
+                            <li>Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.</li>
+                        </ul>
+                    </section>
+                </div>
+            `;
+
+            sourceBtn.addEventListener('click', () => {
+                sourceContent.innerHTML = sourceText;
+                sourceDialog.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+
+            closeDialog.addEventListener('click', () => {
+                sourceDialog.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+
+            sourceDialog.addEventListener('click', (e) => {
+                if (e.target === sourceDialog) {
+                    sourceDialog.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
         });
     </script>
 </body>
