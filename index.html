@@ -586,17 +586,37 @@
                     this.questionElement.textContent = this.currentQuestion.question;
                     this.choicesElement.innerHTML = '';
                     
-                    // Nouvelles couleurs plus contrastées
-                    const colors = [
-                        ['#FF4500', '#CC3700'], // Rouge-Orange vif
-                        ['#4169E1', '#1E40AF'], // Bleu royal
-                        ['#9400D3', '#6B238E'], // Violet foncé
-                        ['#FF1493', '#C71585'], // Rose foncé
-                        ['#1E90FF', '#0066CC'], // Bleu dodger
-                        ['#FF8C00', '#E67300'], // Orange foncé
-                        ['#8B008B', '#660066'], // Magenta foncé
-                        ['#4B0082', '#36005F']  // Indigo foncé
-                    ].sort(() => Math.random() - 0.5);
+                    // Fonction pour générer une couleur aléatoire en HSL
+                    const generateColor = (usedHues) => {
+                        // Éviter les teintes proches du vert (90-150), rouge (0-20, 340-360) et violet (270-310)
+                        let hue;
+                        do {
+                            hue = Math.floor(Math.random() * 360);
+                        } while (
+                            (hue >= 90 && hue <= 150) || // Vert
+                            (hue >= 340 || hue <= 20) || // Rouge
+                            (hue >= 270 && hue <= 310) || // Violet
+                            usedHues.some(h => Math.abs(h - hue) < 45) // Assurer un contraste minimum
+                        );
+                        
+                        // Saturation et luminosité élevées pour un bon contraste
+                        const saturation = 65 + Math.random() * 15; // 65-80%
+                        const lightness = 45 + Math.random() * 10; // 45-55%
+                        
+                        return {
+                            main: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+                            dark: `hsl(${hue}, ${saturation}%, ${lightness - 15}%)`,
+                            hue
+                        };
+                    };
+                    
+                    // Générer 4 couleurs contrastées
+                    const usedHues = [];
+                    const colors = Array.from({length: 4}, () => {
+                        const color = generateColor(usedHues);
+                        usedHues.push(color.hue);
+                        return [color.main, color.dark];
+                    });
                     
                     // Afficher les choix dans l'ordre original
                     this.currentQuestion.choices.forEach((choice, index) => {
