@@ -10,262 +10,174 @@
     <div class="container mx-auto p-4">
         <div class="bg-white shadow-lg rounded-lg p-6 max-w-xl mx-auto">
             <h1 class="text-2xl font-bold text-center text-blue-600">Quiz Interactif</h1>
+            <div class="progress-bar bg-gray-200 rounded-full h-4 mt-4">
+                <div id="progress" class="bg-blue-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mt-1">
+                <span id="current-score">0 points</span>
+                <span id="max-score">/ 15 points</span>
+            </div>
             <div id="quiz">
                 <div class="question text-lg font-semibold mt-4" id="question">Question</div>
                 <div class="timer text-sm font-bold text-red-600 text-center mt-2" id="timer"></div>
                 <div class="choices mt-4 space-y-2" id="choices"></div>
                 <div class="score text-xl font-bold text-green-600 text-center mt-6 hidden" id="score"></div>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded mt-6 hidden mx-auto block hover:bg-blue-600" id="restart">Recommencer</button>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded mt-6 w-full hover:bg-blue-600 transition-colors" id="restart">Recommencer le quiz</button>
             </div>
         </div>
     </div>
     <script>
         const questions = [
-            {
-                question: "Quand commence la Belle Époque au Québec ?",
-                choices: ["1880", "1900", "1914", "1920"],
-                correct: 1
-            },
-            {
-                question: "Qu'a fondé Alphonse Desjardins en 1900 ?",
-                choices: ["La première banque nationale", "La première caisse populaire", "La première université", "La première école publique"],
-                correct: 1
-            },
-            {
-                question: "Quel appareil est une invention marquante de la Belle Époque ?",
-                choices: ["Réfrigérateur", "Aspirateur", "Télévision", "Micro-ondes"],
-                correct: 1
-            },
-            {
-                question: "En quelle année le Canada entre-t-il dans la Première Guerre mondiale ?",
-                choices: ["1914", "1916", "1917", "1918"],
-                correct: 0
-            },
-            {
-                question: "Qui a fondé la première caisse populaire au Québec ?",
-                choices: ["Louis Riel", "Alphonse Desjardins", "Wilfrid Laurier", "John A. Macdonald"],
-                correct: 1
-            },
-            {
-                question: "Quel progrès technique a marqué les années folles au Québec ?",
-                choices: ["L'apparition des tramways", "La radio", "Le téléphone", "La télévision"],
-                correct: 1
-            },
-            {
-                question: "Quelle crise économique débute en 1929 ?",
-                choices: ["La Grande Récession", "La Crise des années folles", "La Grande Crise", "Le Krach de New York"],
-                correct: 3
-            },
-            {
-                question: "Quel est un effet direct de la Grande Crise sur les Canadiens ?",
-                choices: ["Augmentation des salaires", "Fermeture des usines", "Diminution de la pauvreté", "Croissance des exportations"],
-                correct: 1
-            },
-            {
-                question: "Dans les années 1920, que devaient faire les femmes mariées ?",
-                choices: ["Continuer de travailler", "Arrêter de travailler", "Gérer leur propre entreprise", "Rejoindre l'armée"],
-                correct: 1
-            },
-            {
-                question: "Quel moyen de transport devient populaire pendant la Belle Époque ?",
-                choices: ["La bicyclette", "Le métro", "Le tramway", "L'avion"],
-                correct: 0
-            },
-            {
-                question: "Comment appelle-t-on la période de prospérité entre 1900 et 1914 ?",
-                choices: ["La Grande Époque", "La Belle Époque", "L'Âge d'Or", "L'Ère Moderne"],
-                correct: 1
-            },
-            {
-                question: "Quelle invention a permis d'améliorer l'éclairage des maisons au début du 20e siècle ?",
-                choices: ["L'électricité", "Le téléphone", "La radio", "Le moteur à vapeur"],
-                correct: 0
-            },
-            {
-                question: "Pourquoi les francophones étaient-ils souvent opposés à la Première Guerre mondiale ?",
-                choices: ["Ils soutenaient l'Allemagne", "Ils se sentaient peu concernés", "Ils manquaient de ressources", "Ils étaient contre la Grande-Bretagne"],
-                correct: 1
-            },
-            {
-                question: "Qu'est-ce qui a augmenté pour les travailleurs pendant les Années folles ?",
-                choices: ["Les heures de travail", "Les salaires", "Les restrictions religieuses", "Le chômage"],
-                correct: 1
-            },
-            {
-                question: "Quelle invention a facilité les tâches ménagères pendant la Belle Époque ?",
-                choices: ["Le lave-vaisselle", "L'aspirateur", "La machine à laver", "Le réfrigérateur"],
-                correct: 1
-            },
-            {
-                question: "Comment s'appelle le phénomène où de nombreuses personnes déménagent en ville au début du 20e siècle ?",
-                choices: ["La migration urbaine", "L'urbanisation", "La révolution industrielle", "L'exode rural"],
-                correct: 1
-            },
-            {
-                question: "Quel était l'objectif principal des mouvements féministes des années 1920 ?",
-                choices: ["Obtenir le droit de vote", "Augmenter les salaires des hommes", "Réduire les heures de travail", "Créer de nouvelles lois fiscales"],
-                correct: 0
-            },
-            {
-                question: "Quel événement marque la fin de la Première Guerre mondiale ?",
-                choices: ["Le traité de Versailles", "L'entrée des États-Unis en guerre", "Le krach boursier", "La déclaration de l'Empire britannique"],
-                correct: 0
-            },
-            {
-                question: "Quelle période est connue comme les Années folles ?",
-                choices: ["1910-1920", "1918-1929", "1920-1930", "1930-1940"],
-                correct: 1
-            },
-            {
-                question: "Pourquoi les femmes mariées devaient-elles arrêter de travailler dans les années 1920 ?",
-                choices: [
-                    "Pour prendre soin de leur famille",
-                    "C'était une obligation légale",
-                    "Elles gagnaient plus que leurs maris",
-                    "C'était une règle religieuse"
-                ],
-                correct: 0
-            },
-            {
-                question: "Quel événement marque le début de la Première Guerre mondiale ?",
-                choices: [
-                    "L’assassinat de l'archiduc François-Ferdinand",
-                    "Le traité de Versailles",
-                    "La Grande Crise de 1929",
-                    "La Révolution industrielle"
-                ],
-                correct: 0
-            },
-            {
-                question: "Quel progrès technique s'est développé pendant la Belle Époque ?",
-                choices: [
-                    "Le métro",
-                    "L'électricité",
-                    "L'automobile",
-                    "Le téléphone"
-                ],
-                correct: 1
-            },
-            {
-                question: "Qu'est-ce que l'urbanisation ?",
-                choices: [
-                    "L'expansion des campagnes",
-                    "L'installation des gens dans les villes",
-                    "La construction de chemins de fer",
-                    "La mécanisation agricole"
-                ],
-                correct: 1
-            },
-            {
-                question: "Quel événement marque la fin de la Première Guerre mondiale ?",
-                choices: [
-                    "Le krach boursier",
-                    "La signature du traité de Versailles",
-                    "La révolution industrielle",
-                    "L'armistice de 1918"
-                ],
-                correct: 3
-            },
-            {
-                question: "Quelle invention a révolutionné les tâches ménagères au début du 20e siècle ?",
-                choices: [
-                    "Le réfrigérateur",
-                    "L'aspirateur",
-                    "Le lave-vaisselle",
-                    "La machine à laver"
-                ],
-                correct: 1
-            },
-            {
-                question: "Quel phénomène économique a suivi la Première Guerre mondiale ?",
-                choices: [
-                    "La récession économique",
-                    "La Grande Crise",
-                    "Les Années folles",
-                    "L'industrialisation massive"
-                ],
-                correct: 2
-            },
-            {
-                question: "Quel était l'objectif principal des mouvements féministes dans les années 1920 ?",
-                choices: [
-                    "Réduire le nombre d'heures de travail",
-                    "Obtenir le droit de vote",
-                    "Augmenter les salaires des femmes",
-                    "Lutter contre la Première Guerre mondiale"
-                ],
-                correct: 1
-            },
-            {
-                question: "Qu'est-ce qui a provoqué la Grande Crise de 1929 ?",
-                choices: [
-                    "La surproduction industrielle",
-                    "L'inflation des prix agricoles",
-                    "La chute de la bourse de New York",
-                    "Le déclenchement de la Seconde Guerre mondiale"
-                ],
-                correct: 2
-            },
-            {
-                question: "Quel moyen de transport s'est développé pendant les Années folles ?",
-                choices: [
-                    "Le métro",
-                    "L'automobile",
-                    "L'avion",
-                    "Le tramway"
-                ],
-                correct: 1
-            },
-            {
-                question: "Quels étaient les besoins couverts par les organismes de charité pendant la Grande Crise ?",
-                choices: [
-                    "De l'argent",
-                    "Des vêtements et de la nourriture",
-                    "Des logements gratuits",
-                    "Des emplois garantis"
-                ],
-                correct: 1
-            },
-            {
-                question: "Quel traité a officiellement mis fin à la Première Guerre mondiale ?",
-                choices: [
-                    "Le traité de Paris",
-                    "Le traité de Versailles",
-                    "L'accord de Genève",
-                    "Le pacte de Londres"
-                ],
-                correct: 1
-            },
-            {
-                question: "Quelle invention a amélioré la communication au début du 20e siècle ?",
-                choices: [
-                    "Le téléphone",
-                    "La télévision",
-                    "La radio",
-                    "L'internet"
-                ],
-                correct: 0
-            },
-            {
-                question: "Que signifie l'exode rural ?",
-                choices: [
-                    "Le déplacement des populations des campagnes vers les villes",
-                    "La migration des populations des villes vers les campagnes",
-                    "La fermeture des exploitations agricoles",
-                    "La révolution agricole"
-                ],
-                correct: 0
-            },
-            {
-                question: "Quel était l'impact des tramways au début du 20e siècle ?",
-                choices: [
-                    "Ils ont facilité les déplacements entre les quartiers éloignés",
-                    "Ils ont remplacé les chemins de fer",
-                    "Ils étaient utilisés pour le transport des marchandises",
-                    "Ils ont été abandonnés rapidement"
-                ],
-                correct: 0
-            },
+        {
+            "question": "Quelle invention a permis aux quartiers éloignés du centre-ville de se développer pendant la Belle Époque?",
+            "choices": [
+            "Le tramway",
+            "L'automobile",
+            "La bicyclette", 
+            "L'avion"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "En quelle année Alphonse Desjardins a-t-il créé la première Caisse populaire?",
+            "choices": [
+            "1914",
+            "1900",
+            "1918",
+            "1929"
+            ],
+            "correct": 1
+        },
+        {
+            "question": "Pourquoi Alphonse Desjardins a-t-il créé la Caisse populaire?",
+            "choices": [
+            "Car les banques refusaient de prêter aux agriculteurs",
+            "Pour enrichir les hommes d'affaires",
+            "Pour développer l'urbanisation",
+            "Pour aider pendant la guerre"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "Quand s'est terminée la Première Guerre mondiale?",
+            "choices": [
+            "4 août 1914",
+            "24 octobre 1929",
+            "11 novembre 1918",
+            "1900"
+            ],
+            "correct": 2
+        },
+        {
+            "question": "Quelle était l'opinion des francophones concernant leur participation à la guerre?",
+            "choices": [
+            "Ils étaient contre car elle ne les concernait pas",
+            "Ils voulaient soutenir la Grande-Bretagne",
+            "Ils étaient tous volontaires",
+            "Ils n'avaient pas d'opinion"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "Quels changements caractérisent les Années folles?",
+            "choices": [
+            "Les salaires diminuent",
+            "Les prix augmentent",
+            "Les heures de travail augmentent",
+            "Les conditions de vie s'améliorent"
+            ],
+            "correct": 3
+        },
+        {
+            "question": "Quel événement a déclenché la Grande Crise en 1929?",
+            "choices": [
+            "La chute de la Bourse de New York",
+            "La fin de la Première Guerre mondiale",
+            "L'invention de l'automobile",
+            "La création des Caisses populaires"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "Quelle était la durée de la Grande Crise?",
+            "choices": [
+            "5 ans",
+            "10 ans",
+            "15 ans",
+            "20 ans"
+            ],
+            "correct": 1
+        },
+        {
+            "question": "Que distribuaient les organismes de charité pendant la Grande Crise?",
+            "choices": [
+            "De l'argent et des maisons",
+            "Des vêtements et de la nourriture",
+            "Des emplois et des voitures",
+            "Des médicaments"
+            ],
+            "correct": 1
+        },
+        {
+            "question": "Pendant la Belle Époque, quelle invention a permis d'améliorer l'éclairage des rues?",
+            "choices": [
+            "L'électricité",
+            "Le téléphone",
+            "L'automobile",
+            "La bicyclette"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "Quand s'est terminée la Belle Époque?",
+            "choices": [
+            "En 1900",
+            "En 1914",
+            "En 1918",
+            "En 1929"
+            ],
+            "correct": 1
+        },
+        {
+            "question": "Quelle nouvelle classe de travailleurs est apparue pendant les Années folles?",
+            "choices": [
+            "Les agriculteurs",
+            "Les soldats",
+            "Les employés de bureau et de magasins",
+            "Les infirmières"
+            ],
+            "correct": 2
+        },
+        {
+            "question": "Que faisaient les gouvernements pour aider les gens pendant la Grande Crise?",
+            "choices": [
+            "Ils offraient des coupons pour la nourriture et organisaient des travaux publics",
+            "Ils fermaient les usines",
+            "Ils augmentaient les impôts",
+            "Ils envoyaient les gens à la guerre"
+            ],
+            "correct": 0
+        },
+        {
+            "question": "Quelles inégalités les femmes subissaient-elles dans les années 1920?",
+            "choices": [
+            "Elles étaient mieux payées que les hommes",
+            "Elles n'avaient pas le droit de vote et étaient moins bien payées",
+            "Elles ne pouvaient pas aller à l'école",
+            "Elles ne pouvaient pas vivre en ville"
+            ],
+            "correct": 1
+        },
+        {
+            "question": "Quel phénomène décrit le fait que beaucoup de personnes partent vivre en ville au début du 20e siècle?",
+            "choices": [
+            "L'urbanisation",
+            "L'industrialisation",
+            "La modernisation",
+            "La migration"
+            ],
+            "correct": 0
+        }
         ];
 
         const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
@@ -279,6 +191,14 @@
         let currentQuestionIndex = 0;
         let score = 0;
         let countdown;
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById("progress");
+            const currentScoreElement = document.getElementById("current-score");
+            const percentage = (score / shuffledQuestions.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+            currentScoreElement.textContent = `${score} points`;
+        }
 
         function showQuestion() {
             const question = shuffledQuestions[currentQuestionIndex];
@@ -322,6 +242,7 @@
             if (selected === question.correct) {
                 buttons[selected]?.classList.add("bg-green-400");
                 score++;
+                updateProgressBar();
             } else if (selected !== -1) {
                 buttons[selected]?.classList.add("bg-red-400");
                 buttons[question.correct]?.classList.add("bg-green-400");
@@ -357,6 +278,7 @@
             timerElement.style.display = "block";
             scoreElement.style.display = "none";
             restartButton.style.display = "none";
+            updateProgressBar();
             showQuestion();
         });
 
