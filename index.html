@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4">
+        <div class="bg-white shadow-lg rounded-lg p-6 max-w-xl mx-auto">
+            <h1 class="text-2xl font-bold text-center text-blue-600">Quiz Interactif</h1>
+            <div id="quiz">
+                <div class="question text-lg font-semibold mt-4" id="question">Question</div>
+                <div class="timer text-sm font-bold text-red-600 text-center mt-2" id="timer"></div>
+                <div class="choices mt-4 space-y-2" id="choices"></div>
+                <div class="score text-xl font-bold text-green-600 text-center mt-6 hidden" id="score"></div>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded mt-6 hidden mx-auto block hover:bg-blue-600" id="restart">Recommencer</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "Quand commence la Belle Époque au Québec ?",
+                choices: ["1880", "1900", "1914", "1920"],
+                correct: 1
+            },
+            {
+                question: "Qu'a fondé Alphonse Desjardins en 1900 ?",
+                choices: ["La première banque nationale", "La première caisse populaire", "La première université", "La première école publique"],
+                correct: 1
+            },
+            {
+                question: "Quel appareil est une invention marquante de la Belle Époque ?",
+                choices: ["Réfrigérateur", "Aspirateur", "Télévision", "Micro-ondes"],
+                correct: 1
+            },
+            {
+                question: "En quelle année le Canada entre-t-il dans la Première Guerre mondiale ?",
+                choices: ["1914", "1916", "1917", "1918"],
+                correct: 0
+            },
+            {
+                question: "Qui a fondé la première caisse populaire au Québec ?",
+                choices: ["Louis Riel", "Alphonse Desjardins", "Wilfrid Laurier", "John A. Macdonald"],
+                correct: 1
+            },
+            {
+                question: "Quel progrès technique a marqué les années folles au Québec ?",
+                choices: ["L'apparition des tramways", "La radio", "Le téléphone", "La télévision"],
+                correct: 1
+            },
+            {
+                question: "Quelle crise économique débute en 1929 ?",
+                choices: ["La Grande Récession", "La Crise des années folles", "La Grande Crise", "Le Krach de New York"],
+                correct: 3
+            },
+            {
+                question: "Quel est un effet direct de la Grande Crise sur les Canadiens ?",
+                choices: ["Augmentation des salaires", "Fermeture des usines", "Diminution de la pauvreté", "Croissance des exportations"],
+                correct: 1
+            },
+            {
+                question: "Dans les années 1920, que devaient faire les femmes mariées ?",
+                choices: ["Continuer de travailler", "Arrêter de travailler", "Gérer leur propre entreprise", "Rejoindre l'armée"],
+                correct: 1
+            },
+            {
+                question: "Quel moyen de transport devient populaire pendant la Belle Époque ?",
+                choices: ["La bicyclette", "Le métro", "Le tramway", "L'avion"],
+                correct: 0
+            },
+            {
+                question: "Comment appelle-t-on la période de prospérité entre 1900 et 1914 ?",
+                choices: ["La Grande Époque", "La Belle Époque", "L'Âge d'Or", "L'Ère Moderne"],
+                correct: 1
+            },
+            {
+                question: "Quelle invention a permis d'améliorer l'éclairage des maisons au début du 20e siècle ?",
+                choices: ["L'électricité", "Le téléphone", "La radio", "Le moteur à vapeur"],
+                correct: 0
+            },
+            {
+                question: "Pourquoi les francophones étaient-ils souvent opposés à la Première Guerre mondiale ?",
+                choices: ["Ils soutenaient l'Allemagne", "Ils se sentaient peu concernés", "Ils manquaient de ressources", "Ils étaient contre la Grande-Bretagne"],
+                correct: 1
+            },
+            {
+                question: "Qu'est-ce qui a augmenté pour les travailleurs pendant les Années folles ?",
+                choices: ["Les heures de travail", "Les salaires", "Les restrictions religieuses", "Le chômage"],
+                correct: 1
+            },
+            {
+                question: "Quelle invention a facilité les tâches ménagères pendant la Belle Époque ?",
+                choices: ["Le lave-vaisselle", "L'aspirateur", "La machine à laver", "Le réfrigérateur"],
+                correct: 1
+            },
+            {
+                question: "Comment s'appelle le phénomène où de nombreuses personnes déménagent en ville au début du 20e siècle ?",
+                choices: ["La migration urbaine", "L'urbanisation", "La révolution industrielle", "L'exode rural"],
+                correct: 1
+            },
+            {
+                question: "Quel était l'objectif principal des mouvements féministes des années 1920 ?",
+                choices: ["Obtenir le droit de vote", "Augmenter les salaires des hommes", "Réduire les heures de travail", "Créer de nouvelles lois fiscales"],
+                correct: 0
+            },
+            {
+                question: "Quel événement marque la fin de la Première Guerre mondiale ?",
+                choices: ["Le traité de Versailles", "L'entrée des États-Unis en guerre", "Le krach boursier", "La déclaration de l'Empire britannique"],
+                correct: 0
+            }
+        ];
+
+        const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+
+        const questionElement = document.getElementById("question");
+        const choicesElement = document.getElementById("choices");
+        const scoreElement = document.getElementById("score");
+        const restartButton = document.getElementById("restart");
+        const timerElement = document.getElementById("timer");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let countdown;
+
+        function showQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            questionElement.textContent = question.question;
+            choicesElement.innerHTML = "";
+            timerElement.textContent = "Temps restant : 20 secondes";
+            let timeLeft = 20;
+
+            // Start countdown
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Temps restant : ${timeLeft} secondes`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    checkAnswer(-1); // Timeout: No answer selected
+                }
+            }, 1000);
+
+            question.choices.forEach((choice, index) => {
+                const button = document.createElement("div");
+                button.textContent = choice;
+                button.classList.add(
+                    "choice",
+                    "bg-gray-200",
+                    "px-4",
+                    "py-2",
+                    "rounded",
+                    "hover:bg-blue-300",
+                    "cursor-pointer",
+                    "transition"
+                );
+                button.addEventListener("click", () => checkAnswer(index));
+                choicesElement.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected) {
+            clearInterval(countdown);
+            const question = shuffledQuestions[currentQuestionIndex];
+            const buttons = document.querySelectorAll(".choice");
+            if (selected === question.correct) {
+                buttons[selected]?.classList.add("bg-green-400");
+                score++;
+            } else if (selected !== -1) {
+                buttons[selected]?.classList.add("bg-red-400");
+                buttons[question.correct]?.classList.add("bg-green-400");
+            } else {
+                // Timeout case: highlight correct answer
+                buttons[question.correct]?.classList.add("bg-green-400");
+            }
+            buttons.forEach((button) => (button.style.pointerEvents = "none"));
+            currentQuestionIndex++;
+            setTimeout(() => {
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion();
+                } else {
+                    showScore();
+                }
+            }, 1000);
+        }
+
+        function showScore() {
+            questionElement.style.display = "none";
+            choicesElement.style.display = "none";
+            timerElement.style.display = "none";
+            scoreElement.style.display = "block";
+            scoreElement.textContent = `Votre score : ${score} / ${shuffledQuestions.length}`;
+            restartButton.style.display = "block";
+        }
+
+        restartButton.addEventListener("click", () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            questionElement.style.display = "block";
+            choicesElement.style.display = "flex";
+            timerElement.style.display = "block";
+            scoreElement.style.display = "none";
+            restartButton.style.display = "none";
+            showQuestion();
+        });
+
+        showQuestion();
+    </script>
+</body>
+</html>
