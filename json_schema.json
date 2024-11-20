@@ -1,0 +1,48 @@
+{
+    "type": "json_schema",
+    "json_schema": {
+      "name": "quiz_questions",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "question": {
+                  "type": "string",
+                  "description": "The quiz question"
+                },
+                "choices": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "List of answer choices for the question"
+                },
+                "correct": {
+                  "type": "integer",
+                  "description": "Index of the correct choice in the choices array"
+                },
+                "reference": {
+                  "type": "string",
+                  "description": "Source or explanation for the correct answer"
+                }
+              },
+              "required": [
+                "question",
+                "choices",
+                "correct",
+                "reference"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["questions"],
+        "additionalProperties": false
+      }
+    }
+}
