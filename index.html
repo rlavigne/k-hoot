@@ -5,240 +5,664 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Interactif</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .choice {
+            background-color: #f3f4f6;
+            transition: all 0.3s;
+        }
+        .choice:hover {
+            transform: scale(1.02);
+            background-color: #e5e7eb;
+        }
+        .correct-answer {
+            background-color: #10b981;
+            color: white;
+        }
+        .incorrect-answer {
+            background-color: #ef4444;
+            color: white;
+        }
+        .choice:nth-child(1) { background-color: #FF8E1C; }
+        .choice:nth-child(2) { background-color: #1368CE; }
+        .choice:nth-child(3) { background-color: #8A2BE2; }
+        .choice:nth-child(4) { background-color: #FF69B4; }
+        
+        .choice {
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        
+        @keyframes countdown {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Ajout des styles pour le plein écran */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        main {
+            height: 100vh;
+            padding: 0 !important;
+        }
+
+        section {
+            height: 100%;
+            border-radius: 0 !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #quiz {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .choices {
+            flex: 1;
+            gap: 1rem !important;
+            padding: 1rem;
+        }
+
+        .choice {
+            height: 100% !important;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+        }
+
+        .timer-bar {
+            height: 100%;
+            background: #0088ff;
+            animation: countdown linear forwards;
+        }
+
+        /* Animations pour les réponses */
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes wrongAnswer {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .choice {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice.correct {
+            animation: correctAnswer 0.6s ease;
+            background-color: #26890c !important;
+            box-shadow: 0 0 20px rgba(38, 137, 12, 0.5);
+        }
+
+        .choice.wrong {
+            animation: wrongAnswer 0.6s ease;
+            background-color: #e21b3c !important;
+            opacity: 0.8;
+        }
+
+        /* Indicateur de réponse */
+        .choice::after {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .choice.correct::after {
+            content: "✓";
+        }
+
+        .choice.wrong::after {
+            content: "✗";
+        }
+
+        /* Overlay pour montrer la bonne réponse */
+        .correct-answer-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(38, 137, 12, 0.9);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            z-index: 1000;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Mise à jour du style Kahoot */
+        body {
+            background-color: #46178f;
+            color: white;
+        }
+
+        section {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .question {
+            background-color: #fff;
+            color: #333;
+            padding: 2rem !important;
+            border-radius: 1rem;
+            margin: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style moderne pour la barre de progression */
+        .progress-container {
+            padding: 1rem;
+        }
+
+        .progress-bar {
+            height: 0.5rem !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 0 !important;
+        }
+
+        #progress {
+            background: #fff !important;
+            border-radius: 0 !important;
+        }
+
+        /* Style Kahoot pour les choix */
+        .choices {
+            padding: 1rem !important;
+        }
+
+        .choice {
+            border-radius: 1rem !important;
+            font-size: 1.25rem !important;
+            transition: transform 0.2s ease !important;
+        }
+
+        .choice:hover {
+            transform: scale(1.02) !important;
+            filter: brightness(1.1);
+        }
+
+        /* Timer style Kahoot */
+        .timer-container {
+            height: 0.5rem !important;
+        }
+
+        .timer-bar {
+            background: #fff !important;
+        }
+
+        /* Scores et compteur */
+        #current-score, #question-counter {
+            color: white !important;
+        }
+
+        /* Nouveau thème moderne */
+        body {
+            background: linear-gradient(135deg, #46178f 0%, #2b0f59 100%);
+            color: white;
+        }
+
+        .question {
+            background-color: white;
+            color: #333;
+            font-size: 2rem !important;
+            padding: 2.5rem !important;
+            margin: 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* En-tête du quiz */
+        h1 {
+            color: white !important;
+            font-size: 2.5rem !important;
+            padding: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Style moderne pour les choix */
+        .choices {
+            gap: 1.5rem !important;
+            padding: 1.5rem !important;
+        }
+
+        .choice {
+            border-radius: 1.5rem !important;
+            font-size: 1.5rem !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animation d'hover améliorée */
+        .choice:hover {
+            transform: scale(1.03) !important;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Score et compteur améliorés */
+        #current-score, #question-counter {
+            color: white !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+
+        /* Barre de progression */
+        .progress-container {
+            padding: 1rem 2rem;
+        }
+
+        .progress-bar {
+            height: 0.75rem !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        #progress {
+            background: linear-gradient(90deg, #32ab14, #26890c) !important;
+            transition: width 0.3s ease;
+        }
+
+        /* Timer amélioré */
+        .timer-container {
+            height: 0.75rem !important;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .timer-bar {
+            background: linear-gradient(90deg, #ff4b6a, #e21b3c) !important;
+            border-radius: 0.375rem;
+        }
+
+        .points-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #32ab14;
+            animation: fadeUpAndOut 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes fadeUpAndOut {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -100%);
+            }
+        }
+
+        /* Styles pour les réponses */
+        .choice.correct {
+            animation: correctPulse 0.6s ease !important;
+            background: linear-gradient(135deg, #32ab14, #26890c) !important;
+            border: 3px solid #fff !important;
+            box-shadow: 0 0 20px rgba(50, 171, 20, 0.5) !important;
+        }
+
+        .choice.wrong {
+            animation: wrongShake 0.6s ease !important;
+            background: linear-gradient(135deg, #ff4b6a, #e21b3c) !important;
+            opacity: 0.7 !important;
+        }
+
+        /* Animation pour la bonne réponse */
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Animation pour la mauvaise réponse */
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .reference-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            margin: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            color: #333;
+            display: none;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #32ab14, #26890c);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .continue-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Ajouter/modifier les styles */
+        .question-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1rem;
+        }
+
+        .reference-container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            margin-top: -1rem;
+            border-radius: 1rem;
+            color: #333;
+            display: none;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-4">
-        <div class="bg-white shadow-lg rounded-lg p-6 max-w-xl mx-auto">
+    <main class="container mx-auto">
+        <section class="bg-white shadow-lg">
             <h1 class="text-2xl font-bold text-center text-blue-600">Quiz Interactif</h1>
-            <div class="progress-bar bg-gray-200 rounded-full h-4 mt-4">
-                <div id="progress" class="bg-blue-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+            
+            <div class="progress-container mt-4">
+                <div class="progress-bar bg-gray-200 rounded-full h-4">
+                    <div id="progress" class="bg-blue-500 h-4 rounded-full transition-all duration-300"></div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-600 mt-1">
+                    <span id="current-score" class="text-2xl font-bold">0 points</span>
+                    <span id="question-counter" class="text-lg">Question 1/30</span>
+                </div>
             </div>
-            <div class="flex justify-between text-sm text-gray-600 mt-1">
-                <span id="current-score" class="text-2xl font-bold">0 / 900</span>
-                <span id="question-counter" class="text-lg">Question 1/30</span>
-            </div>
+
             <div id="quiz">
-                <div class="question text-lg font-semibold mt-4" id="question">Question</div>
-                <div class="timer text-sm font-bold text-red-600 text-center mt-2" id="timer"></div>
-                <div class="choices mt-4 space-y-2" id="choices"></div>
-                <div class="score text-xl font-bold text-green-600 text-center mt-6 hidden" id="score"></div>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded mt-6 w-full hover:bg-blue-600 transition-colors" id="restart">Recommencer le quiz</button>
+                <div class="timer-container">
+                    <div class="timer-bar" id="timer-bar"></div>
+                </div>
+                <div class="question-container">
+                    <h2 class="question text-2xl font-bold text-center p-8" id="question"></h2>
+                    <div class="reference-container" id="reference-container">
+                        <p id="reference-text" class="mb-4"></p>
+                        <button id="continue-btn" class="continue-btn">Continuer</button>
+                    </div>
+                </div>
+                <div class="choices grid grid-cols-2" id="choices"></div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
+
     <script>
-        const questions = [
-       { "question": "Quel appareil ménager, en plus du grille-pain, est apparu pendant la Belle Époque ?", "choices": [ "L'aspirateur", "Le micro-ondes", "Le lave-vaisselle", "Le réfrigérateur" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"On voit aussi apparaître des appareils comme l'aspirateur et le grille-pain.\"" }, { "question": "Quel moyen de transport a effectué son premier vol au début des années 1900 ?", "choices": [ "L'avion", "L'hélicoptère", "Le dirigeable", "La fusée" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"... et l'avion effectue son premier vol au début 1900.\"" }, { "question": "Quelle invention a permis d'améliorer l'éclairage des rues, des maisons et des commerces pendant la Belle Époque ?", "choices": [ "L'électricité", "Le gaz naturel", "Les lampes à huile", "Les bougies" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité permet d'améliorer l'éclairage des rues, des maisons et des commerces.\"" }, { "question": "Comment les conditions de vie ont-elles changé pendant les Années folles ?", "choices": [ "Elles s'améliorent", "Elles se détériorent", "Elles restent les mêmes", "Elles empirent" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Les conditions de vie s'améliorent.\"" }, { "question": "Qu'est-ce qui a permis aux travailleurs d'habiter plus loin de leur lieu de travail au début du 20e siècle ?", "choices": [ "Le tramway", "L'automobile", "La bicyclette", "Le train à vapeur" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les tramways permettent aux quartiers éloignés du centre-ville de se développer puisque les travailleurs peuvent désormais habiter plus loin de leur lieu de travail.\"" }, { "question": "Quelle période historique a été marquée par une augmentation de la consommation et une baisse des prix des produits ?", "choices": [ "Les Années folles", "La Belle Époque", "La Première Guerre mondiale", "La Grande Crise" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"- La consommation augmente.\n- Les prix des produits baissent.\"" }, { "question": "Qu'est-ce que les gouvernements ont mis en place pour aider les gens pendant la Grande Crise ?", "choices": [ "Des programmes de travaux publics", "Des augmentations d'impôts", "Des réductions de salaires", "Des fermetures d'écoles" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.\"" }, { "question": "Quelle était la réaction initiale de l'armée canadienne pour recruter des soldats pendant la Première Guerre mondiale ?", "choices": [ "Faire appel aux volontaires", "Imposer la conscription", "Engager des mercenaires", "Recruter uniquement des francophones" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Au départ, l'armée canadienne fait appel aux volontaires pour joindre ses rangs.\"" }, { "question": "Quel était le rôle des infirmières pendant la Première Guerre mondiale ?", "choices": [ "Elles ont répondu à l'appel pour joindre l'armée", "Elles ont mené des mouvements féministes", "Elles ont travaillé dans les usines", "Elles ont refusé de participer à la guerre" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Beaucoup de gens répondent à l'appel dont plusieurs infirmières.\"" }, { "question": "Quel impact la Grande Crise a-t-elle eu sur les exportations de produits au Canada ?", "choices": [ "Elles diminuent de façon importante", "Elles augmentent", "Elles restent stables", "Elles cessent complètement" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, Les conséquences de la Grande Crise au Canada : \"Les exportations de produits diminuent de façon importante.\"" }, { "question": "Quels types de projets ont été réalisés dans le cadre des programmes de travaux publics pendant la Grande Crise ?", "choices": [ "Routes, aqueducs, parcs", "Centres commerciaux", "Écoles privées", "Usines d'armement" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.\"" }, { "question": "Qu'est-ce qui caractérise le relâchement des mœurs pendant les Années folles ?", "choices": [ "Des comportements plus libres, moins cadrés par la religion", "Une stricte observance des traditions religieuses", "Une augmentation des règles sociales", "Un retour aux valeurs conservatrices" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Il y a un relâchement des mœurs (les comportements sont plus libres, moins cadrés par la religion).\"" }, { "question": "Quel nouveau moyen de transport est apparu pendant la Belle Époque en plus de l'automobile ?", "choices": [ "La bicyclette", "Le métro", "Le train électrique", "La moto" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"La bicyclette fait aussi son entrée comme moyen de transport...\"" }, { "question": "Quelles actions les femmes ont-elles entreprises pour mettre fin à la discrimination dans les années 1920 ?", "choices": [ "Se regroupent dans des mouvements féministes", "Arrêtent de travailler", "Déménagent en ville", "S'opposent au vote des hommes" ], "correct": 0, "reference": "Unité 11 - Les Années folles, Le féminisme et les inégalités : \"Pour mettre fin à ces inégalités... celles-ci se regroupent dans des mouvements féministes.\"" }, { "question": "Quel événement économique s'est produit le 24 octobre 1929 ?", "choices": [ "La chute de la Bourse de New-York", "La fin de la Première Guerre mondiale", "Le début de la Seconde Guerre mondiale", "La fondation de la première Caisse populaire" ], "correct": 0, "reference": "Unité 12 - La Grande Crise : \"Le 24 octobre 1929, la Bourse de New-York chute brutalement.\"" }, { "question": "Comment appelle-t-on la chute brutale des actions qui a causé la Grande Crise ?", "choices": [ "Un krach", "Une inflation", "Une récession", "Un boom économique" ], "correct": 0, "reference": "Unité 12 - La Grande Crise : \"Cela aggrave la situation et cause ce qu'on appelle un « krach ».\"" }, { "question": "Quelle période est connue pour être une période de découvertes scientifiques et de progrès technologiques ?", "choices": [ "La Belle Époque", "Les Années folles", "La Grande Crise", "La Première Guerre mondiale" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"La Belle Époque est une période de découvertes scientifiques et de progrès technologiques.\"" }, { "question": "Pourquoi les hommes d'affaires se sont-ils enrichis pendant la Belle Époque ?", "choices": [ "À cause d'un boom économique dans la province", "Grâce à la Grande Crise", "À cause de la guerre", "En empruntant aux agriculteurs" ], "correct": 0, "reference": "Unité 9 - La Belle Époque : \"Pendant cette période de prospérité, les hommes d'affaires s'enrichissent, notamment à cause d'un boom économique dans la province...\"" }, { "question": "Quels étaient les besoins comblés par les organismes de charité pendant la Grande Crise ?", "choices": [ "Des vêtements et de la nourriture", "Un logement gratuit", "Des emplois bien rémunérés", "Des services médicaux" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Les organismes de charité distribuaient : - Des vêtements et de la nourriture.\"" }, { "question": "Pourquoi les banques refusaient-elles de prêter aux agriculteurs pendant la Belle Époque ?", "choices": [ "Malgré le boom économique, elles refusent de prêter de l'argent aux agriculteurs", "Parce que les agriculteurs étaient trop riches", "Parce que les agriculteurs ne remboursaient pas leurs prêts", "Parce que les banques manquaient de fonds" ], "correct": 0, "reference": "Unité 9 - La Belle Époque : \"Malgré ce boom économique, les banques refusent de prêter de l'argent aux agriculteurs.\"" }, { "question": "Quels appareils ont commencé à occuper de plus en plus de place dans la société pendant la Belle Époque ?", "choices": [ "L'électricité, le téléphone et l'automobile", "La télévision et l'ordinateur", "Le micro-ondes et le réfrigérateur", "Le train à grande vitesse et l'internet" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société.\"" }, { "question": "Pendant la Grande Crise, quelle mesure n'a pas été prise par les gouvernements pour aider les gens dans le besoin ?", "choices": [ "Augmenter les impôts", "Offrir des coupons échangeables", "Mettre en place des programmes de travaux publics", "Aider à combler les besoins de base" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : (Aucune mention d'une augmentation des impôts comme mesure prise)" }, { "question": "Quel était l'impact de l'urbanisation sur les villes au début du 20e siècle ?", "choices": [ "Les villes se développent rapidement", "Les villes se dépeuplent", "Les villes restent stables", "Les villes deviennent des zones agricoles" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les villes se développent rapidement.\"" }, { "question": "Quelle était l'attitude des francophones envers la guerre ?", "choices": [ "Ils étaient contre leur participation, car elle ne les concerne pas", "Ils étaient pour leur participation", "Ils étaient indifférents", "Ils voulaient envahir l'Allemagne" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Les francophones sont contre leur participation à la guerre, car ils disent qu'elle ne les concerne pas.\"" }, { "question": "Quel était l'effet de la diminution du nombre d'heures de travail pendant les Années folles ?", "choices": [ "Les conditions de vie s'améliorent", "Les salaires diminuent", "Le chômage augmente", "Les gens travaillent plus" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"- Le nombre d'heures de travail diminue.\n- Les conditions de vie s'améliorent.\"" }, { "question": "Quel élément ne fait pas partie des conséquences de la Grande Crise au Canada ?", "choices": [ "Augmentation des exportations", "Fermeture d'usines", "Augmentation de la pauvreté", "Pertes d'emplois" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, Les conséquences de la Grande Crise au Canada : (Les exportations diminuent, elles n'augmentent pas)" }, { "question": "Comment les femmes étaient-elles payées par rapport aux hommes dans les années 1920 ?", "choices": [ "Elles sont moins bien payées que les hommes", "Elles sont payées de la même manière", "Elles sont mieux payées que les hommes", "Elles ne sont pas payées" ], "correct": 0, "reference": "Unité 11 - Les Années folles, Le féminisme et les inégalités : \"Les femmes sont moins bien payées que les hommes.\"" }, { "question": "Quelle invention a changé et facilité la vie des Québécois pendant la Belle Époque ?", "choices": [ "Le téléphone", "La télévision", "L'ordinateur", "Le satellite" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société.\"" }, { "question": "Comment les salaires ont-ils évolué pendant les Années folles ?", "choices": [ "Ils augmentent", "Ils diminuent", "Ils restent stables", "Ils sont supprimés" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Les salaires augmentent.\"" }, { "question": "Qu'est-ce qui a permis le développement des quartiers éloignés du centre-ville au début du 20e siècle ?", "choices": [ "Le tramway", "La voiture électrique", "Le métro", "La moto" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les tramways permettent aux quartiers éloignés du centre-ville de se développer...\"" }
-        ];
-
-        const shuffledQuestions = [...questions]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 30);
-
-        const questionElement = document.getElementById("question");
-        const choicesElement = document.getElementById("choices");
-        const scoreElement = document.getElementById("score");
-        const restartButton = document.getElementById("restart");
-        const timerElement = document.getElementById("timer");
-
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let countdown;
-
-        const QUESTION_TIME = 20;
-        const MAX_POINTS_PER_QUESTION = 30;
-
-        const POINTS_CONFIG = {
-            FAST: 30,    // 0-7 secondes
-            MEDIUM: 20,  // 8-14 secondes
-            SLOW: 10     // 15-20 secondes
+        const QUIZ_CONFIG = {
+            QUESTION_TIME: 20,
+            POINTS: {
+                FAST: 1000,
+                MEDIUM: 500,
+                SLOW: 250
+            }
         };
 
-        function calculatePoints(timeLeft) {
-            if (timeLeft >= 13) return POINTS_CONFIG.FAST;
-            if (timeLeft >= 6) return POINTS_CONFIG.MEDIUM;
-            return POINTS_CONFIG.SLOW;
-        }
+        const questions = [
+        { "question": "Quel appareil ménager, en plus du grille-pain, est apparu pendant la Belle Époque ?", "choices": [ "L'aspirateur", "Le micro-ondes", "Le lave-vaisselle", "Le réfrigérateur" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"On voit aussi apparaître des appareils comme l'aspirateur et le grille-pain.\"" }, 
+    { "question": "Quel moyen de transport a effectué son premier vol au début des années 1900 ?", "choices": [ "L'avion", "L'hélicoptère", "Le dirigeable", "La fusée" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"... et l'avion effectue son premier vol au début 1900.\"" }, 
+    { "question": "Quelle invention a permis d'améliorer l'éclairage des rues, des maisons et des commerces pendant la Belle Époque ?", "choices": [ "L'électricité", "Le gaz naturel", "Les lampes à huile", "Les bougies" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité permet d'améliorer l'éclairage des rues, des maisons et des commerces.\"" }, 
+    { "question": "Comment les conditions de vie ont-elles changé pendant les Années folles ?", "choices": [ "Elles s'améliorent", "Elles se détériorent", "Elles restent les mêmes", "Elles empirent" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Les conditions de vie s'améliorent.\"" }, 
+    { "question": "Qu'est-ce qui a permis aux travailleurs d'habiter plus loin de leur lieu de travail au début du 20e siècle ?", "choices": [ "Le tramway", "L'automobile", "La bicyclette", "Le train à vapeur" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les tramways permettent aux quartiers éloignés du centre-ville de se développer puisque les travailleurs peuvent désormais habiter plus loin de leur lieu de travail.\"" }, 
+    { "question": "Quelle période historique a été marquée par une augmentation de la consommation et une baisse des prix des produits ?", "choices": [ "Les Années folles", "La Belle Époque", "La Première Guerre mondiale", "La Grande Crise" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"- La consommation augmente.\n- Les prix des produits baissent.\"" }, 
+    { "question": "Qu'est-ce que les gouvernements ont mis en place pour aider les gens pendant la Grande Crise ?", "choices": [ "Des programmes de travaux publics", "Des augmentations d'impôts", "Des réductions de salaires", "Des fermetures d'écoles" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.\"" }, 
+    { "question": "Quelle était la réaction initiale de l'armée canadienne pour recruter des soldats pendant la Première Guerre mondiale ?", "choices": [ "Faire appel aux volontaires", "Imposer la conscription", "Engager des mercenaires", "Recruter uniquement des francophones" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Au départ, l'armée canadienne fait appel aux volontaires pour joindre ses rangs.\"" }, 
+    { "question": "Quel était le rôle des infirmières pendant la Première Guerre mondiale ?", "choices": [ "Elles ont répondu à l'appel pour joindre l'armée", "Elles ont mené des mouvements féministes", "Elles ont travaillé dans les usines", "Elles ont refusé de participer à la guerre" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Beaucoup de gens répondent à l'appel dont plusieurs infirmières.\"" }, 
+    { "question": "Quel impact la Grande Crise a-t-elle eu sur les exportations de produits au Canada ?", "choices": [ "Elles diminuent de façon importante", "Elles augmentent", "Elles restent stables", "Elles cessent complètement" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, Les conséquences de la Grande Crise au Canada : \"Les exportations de produits diminuent de façon importante.\"" }, 
+    { "question": "Quels types de projets ont été réalisés dans le cadre des programmes de travaux publics pendant la Grande Crise ?", "choices": [ "Routes, aqueducs, parcs", "Centres commerciaux", "Écoles privées", "Usines d'armement" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.\"" }, 
+    { "question": "Qu'est-ce qui caractérise le relâchement des mœurs pendant les Années folles ?", "choices": [ "Des comportements plus libres, moins cadrs par la religion", "Une stricte observance des traditions religieuses", "Une augmentation des règles sociales", "Un retour aux valeurs conservatrices" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Il y a un relâchement des mœurs (les comportements sont plus libres, moins cadrés par la religion).\"" }, 
+    { "question": "Quel nouveau moyen de transport est apparu pendant la Belle Époque en plus de l'automobile ?", "choices": [ "La bicyclette", "Le métro", "Le train électrique", "La moto" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"La bicyclette fait aussi son entrée comme moyen de transport...\"" }, 
+    { "question": "Quelles actions les femmes ont-elles entreprises pour mettre fin à la discrimination dans les années 1920 ?", "choices": [ "Se regroupent dans des mouvements féministes", "Arrêtent de travailler", "Déménagent en ville", "S'opposent au vote des hommes" ], "correct": 0, "reference": "Unité 11 - Les Années folles, Le féminisme et les inégalités : \"Pour mettre fin à ces inégalités... celles-ci se regroupent dans des mouvements féministes.\"" }, 
+    { "question": "Quel événement économique s'est produit le 24 octobre 1929 ?", "choices": [ "La chute de la Bourse de New-York", "La fin de la Première Guerre mondiale", "Le début de la Seconde Guerre mondiale", "La fondation de la première Caisse populaire" ], "correct": 0, "reference": "Unité 12 - La Grande Crise : \"Le 24 octobre 1929, la Bourse de New-York chute brutalement.\"" }, 
+    { "question": "Comment appelle-t-on la chute brutale des actions qui a causé la Grande Crise ?", "choices": [ "Un krach", "Une inflation", "Une récession", "Un boom économique" ], "correct": 0, "reference": "Unité 12 - La Grande Crise : \"Cela aggrave la situation et cause ce qu'on appelle un « krach ».\"" }, 
+    { "question": "Quelle période est connue pour être une période de découvertes scientifiques et de progrès technologiques ?", "choices": [ "La Belle Époque", "Les Années folles", "La Grande Crise", "La Première Guerre mondiale" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"La Belle Époque est une période de découvertes scientifiques et de progrès technologiques.\"" }, 
+    { "question": "Pourquoi les hommes d'affaires se sont-ils enrichis pendant la Belle Époque ?", "choices": [ "À cause d'un boom économique dans la province", "Grâce à la Grande Crise", "À cause de la guerre", "En empruntant aux agriculteurs" ], "correct": 0, "reference": "Unité 9 - La Belle Époque : \"Pendant cette période de prospérité, les hommes d'affaires s'enrichissent, notamment à cause d'un boom économique dans la province...\"" }, 
+    { "question": "Quels étaient les besoins comblés par les organismes de charité pendant la Grande Crise ?", "choices": [ "Des vêtements et de la nourriture", "Un logement gratuit", "Des emplois bien rémunérés", "Des services médicaux" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : \"Les organismes de charité distribuaient : - Des vêtements et de la nourriture.\"" }, 
+    { "question": "Pourquoi les banques refusaient-elles de prêter aux agriculteurs pendant la Belle Époque ?", "choices": [ "Malgré le boom économique, elles refusent de prêter de l'argent aux agriculteurs", "Parce que les agriculteurs étaient trop riches", "Parce que les agriculteurs ne remboursaient pas leurs prêts", "Parce que les banques manquaient de fonds" ], "correct": 0, "reference": "Unité 9 - La Belle Époque : \"Malgré ce boom économique, les banques refusent de prêter de l'argent aux agriculteurs.\"" }, 
+    { "question": "Quels appareils ont commencé à occuper de plus en plus de place dans la société pendant la Belle Époque ?", "choices": [ "L'électricité, le téléphone et l'automobile", "La télévision et l'ordinateur", "Le micro-ondes et le réfrigérateur", "Le train à grande vitesse et l'internet" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société.\"" }, 
+    { "question": "Pendant la Grande Crise, quelle mesure n'a pas été prise par les gouvernements pour aider les gens dans le besoin ?", "choices": [ "Augmenter les impôts", "Offrir des coupons échangeables", "Mettre en place des programmes de travaux publics", "Aider à combler les besoins de base" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, La charité et l'aide des gouvernements : (Aucune mention d'une augmentation des impôts comme mesure prise)" }, 
+    { "question": "Quel était l'impact de l'urbanisation sur les villes au début du 20e siècle ?", "choices": [ "Les villes se développent rapidement", "Les villes se dépeuplent", "Les villes restent stables", "Les villes deviennent des zones agricoles" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les villes se développent rapidement.\"" }, 
+    { "question": "Quelle était l'attitude des francophones envers la guerre ?", "choices": [ "Ils étaient contre leur participation, car elle ne les concerne pas", "Ils étaient pour leur participation", "Ils étaient indifférents", "Ils voulaient envahir l'Allemagne" ], "correct": 0, "reference": "Unité 10 - La Première Guerre mondiale, La division au sein de la population : \"Les francophones sont contre leur participation à la guerre, car ils disent qu'elle ne les concerne pas.\"" }, 
+    { "question": "Quel était l'effet de la diminution du nombre d'heures de travail pendant les Années folles ?", "choices": [ "Les conditions de vie s'améliorent", "Les salaires diminuent", "Le chômage augmente", "Les gens travaillent plus" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"- Le nombre d'heures de travail diminue.\n- Les conditions de vie s'améliorent.\"" }, 
+    { "question": "Quel élément ne fait pas partie des conséquences de la Grande Crise au Canada ?", "choices": [ "Augmentation des exportations", "Fermeture d'usines", "Augmentation de la pauvreté", "Pertes d'emplois" ], "correct": 0, "reference": "Unité 12 - La Grande Crise, Les conséquences de la Grande Crise au Canada : (Les exportations diminuent, elles n'augmentent pas)" }, 
+    { "question": "Comment les femmes étaient-elles payées par rapport aux hommes dans les années 1920 ?", "choices": [ "Elles sont moins bien payées que les hommes", "Elles sont payées de la même manière", "Elles sont mieux payées que les hommes", "Elles ne sont pas payées" ], "correct": 0, "reference": "Unité 11 - Les Années folles, Le féminisme et les inégalités : \"Les femmes sont moins bien payées que les hommes.\"" }, 
+    { "question": "Quelle invention a changé et facilité la vie des Québécois pendant la Belle Époque ?", "choices": [ "Le téléphone", "La télévision", "L'ordinateur", "Le satellite" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, Les inventions : \"L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société.\"" }, 
+    { "question": "Comment les salaires ont-ils évolué pendant les Années folles ?", "choices": [ "Ils augmentent", "Ils diminuent", "Ils restent stables", "Ils sont supprimés" ], "correct": 0, "reference": "Unité 11 - Les Années folles : \"Les salaires augmentent.\"" }, 
+    { "question": "Qu'est-ce qui a permis le développement des quartiers éloignés du centre-ville au début du 20e siècle ?", "choices": [ "Le tramway", "La voiture électrique", "Le métro", "La moto" ], "correct": 0, "reference": "Unité 9 - La Belle Époque, L'urbanisation : \"Les tramways permettent aux quartiers éloignés du centre-ville de se développer...\"" }
 
-        function updateProgressBar() {
-            const progressBar = document.getElementById("progress");
-            const currentScoreElement = document.getElementById("current-score");
-            const maxPossibleScore = shuffledQuestions.length * MAX_POINTS_PER_QUESTION;
-            const percentage = (score / maxPossibleScore) * 100;
-            progressBar.style.width = `${percentage}%`;
-            currentScoreElement.textContent = `${score} / ${maxPossibleScore}`;
-        }
+        ];
 
-        function showQuestion() {
-            const question = shuffledQuestions[currentQuestionIndex];
-            questionElement.textContent = question.question;
-            
-            // Supprimer tout feedback précédent
-            const oldFeedback = document.querySelector('.feedback-container');
-            if (oldFeedback) oldFeedback.remove();
-            
-            choicesElement.innerHTML = "";
-            let timeLeft = QUESTION_TIME;
-            timerElement.textContent = `Temps restant : ${timeLeft} secondes`;
-            timerElement.classList.remove('text-red-600');
+        class Quiz {
+            constructor() {
+                this.questions = this.shuffleQuestions(questions);
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.timeLeft = 0;
+                this.timerId = null;
 
-            // Créer un tableau de choix avec leurs indices
-            const shuffledChoices = question.choices.map((choice, index) => ({
-                text: choice,
-                originalIndex: index
-            })).sort(() => Math.random() - 0.5);
+                this.questionElement = document.getElementById('question');
+                this.choicesElement = document.getElementById('choices');
+                this.scoreElement = document.getElementById('current-score');
+                this.timerElement = document.getElementById('timer');
+                this.progressBar = document.getElementById('progress');
+                this.questionCounterElement = document.getElementById('question-counter');
 
-            shuffledChoices.forEach((choice) => {
-                const button = document.createElement("button");
-                button.setAttribute('type', 'button');
-                button.classList.add(
-                    "choice",
-                    "w-full",
-                    "bg-gray-200",
-                    "px-4",
-                    "py-3",
-                    "rounded",
-                    "hover:bg-blue-300",
-                    "cursor-pointer",
-                    "transition",
-                    "focus:outline-none",
-                    "focus:ring-2",
-                    "focus:ring-blue-500"
-                );
-                button.textContent = choice.text;
-                button.addEventListener("click", () => checkAnswer(choice.originalIndex));
-                choicesElement.appendChild(button);
-            });
+                this.choicesElement.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (button) {
+                        const choice = parseInt(button.dataset.choice);
+                        this.checkAnswer(choice);
+                    }
+                });
 
-            // Start countdown
-            countdown = setInterval(() => {
-                timeLeft--;
-                timerElement.textContent = `Temps restant : ${timeLeft} secondes`;
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    checkAnswer(-1); // Timeout: No answer selected
-                }
-            }, 1000);
-
-            // Mettre à jour le compteur de questions
-            document.getElementById("question-counter").textContent = 
-                `Question ${currentQuestionIndex + 1}/${shuffledQuestions.length}`;
-        }
-
-        function checkAnswer(selected) {
-            clearInterval(countdown);
-            const timeLeft = parseInt(timerElement.textContent.match(/\d+/)[0]);
-            const question = shuffledQuestions[currentQuestionIndex];
-            const buttons = document.querySelectorAll(".choice");
-            
-            // Créer le conteneur de feedback
-            const feedbackContainer = document.createElement('div');
-            feedbackContainer.classList.add('feedback-container', 'mt-2', 'mb-4', 'space-y-2');
-            
-            // Ajouter la référence en premier
-            const referenceContainer = document.createElement('div');
-            referenceContainer.classList.add('text-sm', 'text-gray-600', 'mt-2');
-            referenceContainer.textContent = `Référence: ${question.reference}`;
-            feedbackContainer.appendChild(referenceContainer);
-            
-            // Message de feedback
-            const feedbackMessage = document.createElement('div');
-            feedbackMessage.classList.add('text-center', 'font-bold');
-            
-            if (selected === question.correct) {
-                const pointsEarned = calculatePoints(timeLeft);
-                score += pointsEarned;
-                
-                feedbackMessage.textContent = `Bonne réponse! +${pointsEarned} points 👏`;
-                feedbackMessage.classList.add('text-green-600');
-                buttons[selected]?.classList.add("bg-green-400");
-                updateProgressBar();
-            } else if (selected !== -1) {
-                feedbackMessage.textContent = "Mauvaise réponse 😕";
-                feedbackMessage.classList.add('text-red-600');
-                buttons[selected]?.classList.add("bg-red-400");
-                buttons[question.correct]?.classList.add("bg-green-400");
-            } else {
-                feedbackMessage.textContent = "Temps écoulé 😕";
-                feedbackMessage.classList.add('text-red-600');
-                buttons[question.correct]?.classList.add("bg-green-400");
+                this.init();
             }
 
-            // Bouton Continuer
-            const continueButton = document.createElement('button');
-            continueButton.textContent = 'Continuer';
-            continueButton.classList.add(
-                'bg-blue-500',
-                'text-white',
-                'px-4',
-                'py-2',
-                'rounded',
-                'w-full',
-                'hover:bg-blue-600',
-                'transition-colors',
-                'mt-2'
-            );
-            
-            feedbackContainer.appendChild(feedbackMessage);
-            feedbackContainer.appendChild(continueButton);
-            
-            // Insérer le conteneur de feedback après la question
-            questionElement.parentNode.insertBefore(feedbackContainer, questionElement.nextSibling);
-            
-            buttons.forEach((button) => (button.style.pointerEvents = "none"));
-            
-            continueButton.addEventListener('click', () => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < shuffledQuestions.length) {
-                    showQuestion();
-                } else {
-                    showScore();
+            shuffleQuestions(questions) {
+                return [...questions].sort(() => Math.random() - 0.5);
+            }
+
+            init() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.displayQuestion();
+            }
+
+            startTimer() {
+                const timerBar = document.getElementById('timer-bar');
+                timerBar.style.animation = 'none';
+                timerBar.offsetHeight; // Force reflow
+                timerBar.style.animation = `countdown ${QUIZ_CONFIG.QUESTION_TIME}s linear forwards`;
+                
+                this.timeLeft = QUIZ_CONFIG.QUESTION_TIME;
+                
+                if (this.timerId) {
+                    clearInterval(this.timerId);
                 }
-            });
+                
+                this.timerId = setInterval(() => {
+                    this.timeLeft--;
+                    if (this.timeLeft <= 0) {
+                        this.stopTimer();
+                        this.nextQuestion();
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                clearInterval(this.timerId);
+            }
+
+            updateTimerDisplay() {
+                this.timerElement.textContent = `${this.timeLeft}s`;
+                const progress = (this.timeLeft / QUIZ_CONFIG.QUESTION_TIME) * 100;
+                this.progressBar.style.width = `${progress}%`;
+            }
+
+            displayQuestion() {
+                if (this.currentQuestion < this.questions.length) {
+                    const question = this.questions[this.currentQuestion];
+                    this.questionElement.textContent = question.question;
+                    this.choicesElement.innerHTML = '';
+                    
+                    // Nouvelles couleurs aléatoires (sans vert ni rouge)
+                    const colors = [
+                        ['#FF8E1C', '#E67E00'], // Orange
+                        ['#1368CE', '#0A4C9E'], // Bleu
+                        ['#8A2BE2', '#6A1CB2'], // Violet
+                        ['#FF69B4', '#FF1493'], // Rose
+                        ['#4B0082', '#2E0854'], // Indigo
+                        ['#FF8C00', '#CC7000'], // Orange foncé
+                        ['#1E90FF', '#0066CC'], // Bleu ciel
+                        ['#9370DB', '#7B52C7']  // Violet moyen
+                    ].sort(() => Math.random() - 0.5);
+                    
+                    // Mélange aléatoire des indices des choix
+                    const shuffledIndices = Array.from({ length: question.choices.length }, (_, i) => i)
+                        .sort(() => Math.random() - 0.5);
+                    
+                    // Utilise les indices mélangés pour afficher les choix dans un ordre aléatoire
+                    shuffledIndices.forEach((originalIndex, newIndex) => {
+                        const button = document.createElement('button');
+                        button.className = 'choice h-32 rounded-lg flex items-center justify-center text-xl';
+                        button.style.background = `linear-gradient(135deg, ${colors[newIndex][0]} 0%, ${colors[newIndex][1]} 100%)`;
+                        button.innerHTML = `
+                            <div>
+                                <div class="text-3xl mb-2">${question.choices[originalIndex]}</div>
+                            </div>
+                        `;
+                        button.dataset.choice = String(originalIndex);
+                        this.choicesElement.appendChild(button);
+                    });
+
+                    this.startTimer();
+                }
+            }
+
+            checkAnswer(choice) {
+                const currentQuestion = this.questions[this.currentQuestion];
+                const isCorrect = choice === currentQuestion.correct;
+                this.stopTimer();
+                const timerBar = document.getElementById('timer-bar');
+                timerBar.style.animationPlayState = 'paused';
+                
+                const buttons = this.choicesElement.querySelectorAll('.choice');
+                buttons.forEach(button => {
+                    button.disabled = true;
+                    const buttonChoice = parseInt(button.dataset.choice);
+                    
+                    if (buttonChoice === currentQuestion.correct) {
+                        button.style.backgroundColor = '#4A90E2'; // Bleu pour la bonne réponse
+                        button.classList.add('correct');
+                    } else if (buttonChoice === choice && !isCorrect) {
+                        button.classList.add('wrong');
+                    }
+                });
+                
+                // Afficher la référence
+                const referenceContainer = document.getElementById('reference-container');
+                const referenceText = document.getElementById('reference-text');
+                referenceText.textContent = currentQuestion.reference;
+                referenceContainer.style.display = 'block';
+                
+                if (isCorrect) {
+                    let points;
+                    if (this.timeLeft >= 10) {
+                        points = QUIZ_CONFIG.POINTS.FAST;
+                    } else if (this.timeLeft >= 5) {
+                        points = QUIZ_CONFIG.POINTS.MEDIUM;
+                    } else {
+                        points = QUIZ_CONFIG.POINTS.SLOW;
+                    }
+                    
+                    const pointsFeedback = document.createElement('div');
+                    pointsFeedback.className = 'points-feedback';
+                    pointsFeedback.textContent = `+${points}`;
+                    document.body.appendChild(pointsFeedback);
+                    
+                    setTimeout(() => {
+                        pointsFeedback.remove();
+                    }, 1000);
+                    
+                    this.score += points;
+                    this.scoreElement.textContent = `${this.score} points`;
+                }
+                
+                // Ajouter l'écouteur d'événement pour le bouton continuer
+                const continueBtn = document.getElementById('continue-btn');
+                continueBtn.onclick = () => {
+                    this.nextQuestion();
+                    referenceContainer.style.display = 'none';
+                };
+            }
+
+            nextQuestion() {
+                this.currentQuestion++;
+                if (this.currentQuestion >= this.questions.length) {
+                    document.getElementById('score').classList.remove('hidden');
+                    document.getElementById('score').textContent = `Score final : ${this.score} points`;
+                    return;
+                }
+                this.questionCounterElement.textContent = `Question ${this.currentQuestion + 1}/${this.questions.length}`;
+                this.displayQuestion();
+            }
         }
 
-        function showScore() {
-            questionElement.style.display = "none";
-            choicesElement.style.display = "none";
-            timerElement.style.display = "none";
-            scoreElement.style.display = "block";
-            
-            // Calcul du pourcentage basé sur le score maximum possible
-            const maxPossibleScore = shuffledQuestions.length * MAX_POINTS_PER_QUESTION;
-            const percentage = (score / maxPossibleScore) * 100;
-            
-            let message = "";
-            if (percentage >= 80) message = "Excellent! 🎉";
-            else if (percentage >= 60) message = "Bien joué! 👍";
-            else message = "Continuez vos efforts! 💪";
-            
-            scoreElement.innerHTML = `
-                <div class="text-2xl mb-4">Votre score : ${score} / ${maxPossibleScore}</div>
-                <div class="text-lg text-gray-600">${message}</div>
-            `;
-            restartButton.style.display = "block";
-        }
-
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            score = 0;
-            updateProgressBar(); // Réinitialiser la barre de progression
-            
-            // Réafficher les éléments cachés
-            questionElement.style.display = "block";
-            choicesElement.style.display = "block";
-            timerElement.style.display = "block";
-            scoreElement.style.display = "none";
-            
-            // Remélanger les questions
-            shuffledQuestions.sort(() => Math.random() - 0.5);
-            
-            showQuestion();
-        }
-
-        restartButton.addEventListener("click", restartQuiz);
-
-        showQuestion();
+        document.addEventListener('DOMContentLoaded', () => {
+            new Quiz();
+        });
     </script>
 </body>
 </html>
