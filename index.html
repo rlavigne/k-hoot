@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Interactif</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.10/dist/typography.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Base styles */
         body {
@@ -356,6 +358,84 @@
             border-radius: 4px;
         }
 
+        /* Styles pour le markdown rendu */
+        .markdown-content {
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .markdown-content h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1a202c !important;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2d3748 !important;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+
+        .markdown-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .markdown-content strong {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .markdown-content em {
+            font-style: italic;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #e2e8f0;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #718096;
+        }
+
+        .markdown-content code {
+            background-color: #f7fafc;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #2d3748;
+        }
+
+        .markdown-content pre {
+            background-color: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
         @keyframes rotation {
             0% {
                 transform: rotate(0deg);
@@ -413,18 +493,22 @@
         </section>
     </main>
 
-    <div id="source-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Source du contenu</h2>
-                <button id="close-dialog" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div id="source-content" class="prose max-w-none text-gray-600">
-                <!-- Le contenu sera injecté ici via JavaScript -->
+    <div id="source-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full my-8">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Source du contenu</h2>
+                        <button id="close-dialog" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="source-content" class="prose max-w-none text-gray-600">
+                        <!-- Le contenu sera injecté ici via JavaScript -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -816,82 +900,390 @@
             const closeDialog = document.getElementById('close-dialog');
             const sourceContent = document.getElementById('source-content');
 
-            // Contenu formaté en HTML
+            // Initialiser markdown-it
+            const md = new markdownit();
+
+            // Contenu en markdown
             const sourceText = `
-                <div class="space-y-6">
-                    <section>
-                        <h3 class="text-xl font-bold text-gray-800">Unité 9 - La Belle Époque</h3>
-                        <p class="mt-4">Le Québec a connu plusieurs périodes de prospérité dans son histoire. La première se déroule entre 1900 et 1914. On appelle cette période la Belle Époque. La Belle Époque prendra fin en 1914 avec la Première Guerre mondiale.</p>
-                        <p class="mt-4">Pendant cette période de prospérité, les hommes d'affaires s'enrichissent, notamment à cause d'un boom économique dans la province (un développement rapide de l'économie du Québec). Malgré ce boom économique, les banques refusent de prêter de l'argent aux agriculteurs. C'est pourquoi Alphonse Desjardins mettra sur pied la toute première Caisse populaire en 1900.</p>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">L'urbanisation :</h4>
-                        <p class="mt-2">Au début du 20e siècle, énormément de personnes partent vivre en ville. Les villes se développent rapidement. Ce phénomène s'appelle l'urbanisation. Dans les villes, on voit apparaître des gratte-ciels et des grands magasins. Les tramways permettent aux quartiers éloignés du centre-ville de se développer puisque les travailleurs peuvent désormais habiter plus loin de leur lieu de travail.</p>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Les inventions :</h4>
-                        <p class="mt-2">La Belle Époque est une période de découvertes scientifiques et de progrès technologiques. Plusieurs inventions viendront changer et faciliter la vie des Québécois. L'électricité, le téléphone et l'automobile occupent de plus en plus de place dans la société. L'électricité permet d'améliorer l'éclairage des rues, des maisons et des commerces. On voit aussi apparaître des appareils comme l'aspirateur et le grille-pain. La bicyclette fait aussi son entrée comme moyen de transport, et l'avion effectue son premier vol au début 1900.</p>
-                    </section>
+# Procaryotes ou eucaryotes ?
 
-                    <section>
-                        <h3 class="text-xl font-bold text-gray-800">Unité 10 - La Première Guerre mondiale</h3>
-                        <p class="mt-4">Le 4 août 1914, la Grande-Bretagne déclare la guerre à l'Allemagne. Cette déclaration de guerre sera le début de la Première Guerre mondiale en Europe. On l'appelle ainsi, car elle touche plusieurs pays qui ont formé des alliances entre eux. Puisque le Canada fait partie de l'Empire britannique, ce dernier entre lui aussi en guerre.</p>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">La division au sein de la population :</h4>
-                        <p class="mt-2">Au départ, l'armée canadienne fait appel aux volontaires pour joindre ses rangs. Beaucoup de gens répondent à l'appel dont plusieurs infirmières. Les francophones et les anglophones du pays n'ont pas la même opinion quant à leur participation à la guerre :</p>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Les francophones sont contre leur participation à la guerre, car ils disent qu'elle ne les concerne pas.</li>
-                            <li>Les anglophones sont pour leur participation à la guerre, car ils croient que c'est le devoir du Canada de soutenir la Grande-Bretagne dans ce conflit.</li>
-                        </ul>
-                        <p class="mt-4">La Première Guerre mondiale prend fin le 11 novembre 1918.</p>
-                    </section>
+## Tableau comparatif
 
-                    <section>
-                        <h3 class="text-xl font-bold text-gray-800">Unité 11 - Les Années folles</h3>
-                        <p class="mt-4">Les Années folles correspondent à la période après la Première Guerre mondiale, soit de 1918 à 1929.</p>
-                        <p class="mt-4">Plusieurs éléments caractérisent cette nouvelle période de prospérité :</p>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Les privations dues à la guerre diminuent.</li>
-                            <li>La consommation augmente.</li>
-                            <li>L'utilisation de l'automobile augmente.</li>
-                            <li>Les conditions de vie s'améliorent.</li>
-                            <li>Le nombre d'heures de travail diminue.</li>
-                            <li>Les salaires augmentent.</li>
-                            <li>Les prix des produits baissent.</li>
-                            <li>Il y a un relâchement des mœurs (les comportements sont plus libres, moins cadrés par la religion).</li>
-                            <li>Arrivée d'une nouvelle classe de travailleurs : les employés de bureau et de magasins.</li>
-                        </ul>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Le féminisme et les inégalités :</h4>
-                        <p class="mt-2">Dans les années 20, les femmes subissent encore plusieurs inégalités :</p>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Les femmes sont moins bien payées que les hommes.</li>
-                            <li>Les femmes mariées doivent arrêter de travailler.</li>
-                            <li>Les femmes n'ont pas le droit de voter.</li>
-                        </ul>
-                        <p class="mt-4">Pour mettre fin à ces inégalités et à la discrimination envers les femmes, celles-ci se regroupent dans des mouvements féministes. Ces mouvements exigent plus de droits pour les femmes.</p>
-                    </section>
+| Caractéristiques | Procaryotes | Eucaryotes |
+|-----------------|-------------|------------|
+| Organisme | Bactéries | Protistes, champignons, plantes, animaux |
+| Présence d'un noyau | Non | Oui |
+| Taille des cellules | Généralement plus petites que les eucaryotes (environ 1 micromètre) | Généralement plus grandes (5 à 100+ μm) |
+| ADN | Généralement un seul chromosome de forme circulaire | Généralement plusieurs chromosomes linéaires |
+| Localisation de l'ADN | Pas encerclé (absence de noyau) | Réserve aux limites membranaires du noyau |
+| Organites | Absent (ou peu) | Présents (mitochondries, appareil de Golgi, réticulum, endoplasmique, etc.) |
 
-                    <section>
-                        <h3 class="text-xl font-bold text-gray-800">Unité 12 - La Grande Crise</h3>
-                        <p class="mt-4">Le 24 octobre 1929, la Bourse de New-York chute brutalement. Les actions sur le marché perdent énormément de valeur et les propriétaires de ces actions les vendent avant de perdre trop d'argent. Cela aggrave la situation et cause ce qu'on appelle un « krach ». Ce dernier sera la cause de la Grande Crise, une crise économique qui durera 10 ans.</p>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">Les conséquences de la Grande Crise au Canada :</h4>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Les exportations de produits diminuent de façon importante.</li>
-                            <li>Plusieurs usines et entreprises ferment.</li>
-                            <li>Plusieurs pertes d'emplois.</li>
-                            <li>Augmentation de la pauvreté (surtout en ville).</li>
-                        </ul>
-                        <h4 class="text-lg font-semibold text-gray-800 mt-6">La charité et l'aide des gouvernements :</h4>
-                        <p class="mt-2">Pendant la Grande Crise, les gens dans le besoin devaient se tourner vers des organismes de charité pour combler certains besoins. Les organismes de charité distribuaient :</p>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Des vêtements et de la nourriture.</li>
-                        </ul>
-                        <p class="mt-4">De leur côté, les gouvernements du Canada et du Québec mettent des programmes en place pour aider les gens dans le besoin :</p>
-                        <ul class="list-disc ml-6 mt-2">
-                            <li>Ils offrent des coupons échangeables contre de la nourriture et des vêtements.</li>
-                            <li>Ils mettent en place des programmes de travaux publics (route, aqueduc, parc) pour employer les travailleurs sans emploi.</li>
-                        </ul>
-                    </section>
-                </div>
-            `;
+## Structure d'une cellule eucaryote
+
+### Composants principaux
+- **Enveloppe nucléaire** : Entoure le noyau
+- **Noyau** : Contient l'ADN
+- **Membrane cellulaire** :
+  - Délimite
+  - Régule ce qui passe
+  - Régule la vitesse des échanges
+
+### Organites et leurs fonctions
+- **Vacuole** : 
+  - Transport
+  - Stockage
+
+- **Réticulum endoplasmique** :
+  - *Rugueux* : Fabrique des protéines
+  - *Lisse* : Fabrique des lipides, détoxifie les poisons
+
+- **Appareil de Golgi** :
+  - Emballe et expédie
+  - Fonction : Direction cellulaire
+
+- **Cytosquelette** : Filaments intermédiaires (soutien, ancrage, maintien)
+
+- **Mitochondrie** :
+  - Respiration cellulaire
+  - Production d'énergie
+
+- **Cytoplasme** : Contient les organites
+
+- **Ribosome** : Fabrication des protéines
+
+- **Microtubules** : Déplacement cellulaire
+
+# Les organites de la cellule
+
+## A. Membrane cytoplasmique
+- Elle sélectionne les intrants (nutriments, dioxygène) et les extrants (déchets) de la cellule
+
+## B. Vacuoles
+- Elles accumulent en réserve des éléments utiles (nourriture) ou des déchets qui seront expulsés
+
+## C. Réticulum endoplasmique
+- Réseau de transport permettant la circulation des nutriments et des déchets à expulser
+- Transport des protéines que la cellule a fabriquées
+
+## D. Mitochondries
+- À l'aide de l'O2, elles "brûlent" certains nutriments (glucose) en y brisant les liens chimiques
+- Fournit l'énergie nécessaire au fonctionnement de la cellule
+- Il résulte de cette combustion des déchets:
+ - CO2
+ - H2O
+
+## E. Lysosomes
+- Gr��ce aux puissantes enzymes (ciseaux chimiques) qu'ils contiennent
+- Peuvent digérer les particules nuisibles comme les bactéries et les virus
+- Ils digèrent et recyclent aussi les constituants cellulaires
+
+## F. Centrosomes
+- Ils coordonnent le sens de la division cellulaire (mitose/méiose)
+
+## G. Ribosomes
+- Un peu partout dans la cellule
+- Ces usines fabriquent les molécules les plus importantes de la cellule: les protéines
+- Les ribosomes synthétisent les protéines en suivant le code génétique (acides aminés)
+
+## H. Noyau
+- Contrôle toutes les activités de la cellule
+- Par l'ADN qu'il contient
+- Possède les "recettes de fabrication" de nos protéines
+- Ces dernières déterminent:
+ - Notre apparence (ex: couleur de cheveux)
+ - Notre fonctionnement (ex: hormones)
+- Toutes les cellules d'un individu possèdent le même ADN
+
+## I. Chromosomes (chromatine)
+- Dans le noyau, bâtonnets d'ADN constituant le matériel génétique
+- Chez un individu, toutes les cellules possèdent les mêmes 23 paires de chromosomes
+
+## J. Appareil de Golgi
+- Empilement de réservoirs plats et larges
+- Abondant dans les cellules sécrétrices (glandes)
+- Lieu d'accumulation des protéines provenant des ribosomes
+
+## K. Cytoplasme
+- Substance gélatineuse dans laquelle baigne tout les organites de la cellule
+
+# Grille de mots croisés sur la cellule et ses organites
+
+## Définitions horizontales
+1. Contrôle les activités de la cellule et contient l'information génétique
+2. Essentiel à la combustion cellulaire
+3. Organite fournissant l'énergie à la cellule
+4. Milieu interne de la cellule contenant des organites
+5. Sert à défendre la cellule contre les particules nuisibles
+6. Accumule en réserve les éléments utiles
+7. Se dit d'un acide entrant dans la composition des protéines
+8. Réseau de transport
+9. Sert à accumuler les protéines avant de les libérer au besoin
+
+## Définitions verticales
+1. Assemble les molécules nécessaires à la construction
+2. Section d'ADN codant une séquence spécifique d'acides aminés
+3. Détermine le sens de la mitose
+4. Synonyme de fabrication
+5. Protéine capable de fractionner de grosses molécules
+6. Procédé par lequel les liens chimiques du glucose sont brisés dans les mitochondries
+7. Sélectionne les entrées et les sorties
+
+## Solution
+Mots trouvés dans la grille:
+- MITOCHONDRIE
+- NOYAU
+- OXYGENE
+- CYTOPLASME
+- LYSOSOME
+- VACUOLE
+- AMINE
+- RETICULUM
+- GOLGI
+
+# Questions sur l'ADN
+
+1. **Où se trouve l'ADN ?**
+  - L'ADN se trouve dans le noyau d'une cellule
+
+2. **À quoi ressemble l'ADN ?**
+  - L'ADN a une structure en double hélice
+
+3. **Qu'est ce qui compose l'ADN ?**
+  - L'ADN est composé de nucléotide
+
+  # L'ADN (Acide Désoxyribonucléique)
+
+## Définition et caractéristiques
+- L'ADN est la molécule contenant l'information génétique d'un individu
+- L'ADN est une molécule faite de 2 brins enroulés ensemble
+- Elle forme une double hélice
+- Longueur de l'ADN déroulée contenu dans une seule cellule: environ 2 mètres
+
+## Structure de l'ADN
+Une longue chaîne de nucléotides (polymère) composée de:
+1. Base azotée
+2. Sucre (désoxyribose)
+3. Groupement phosphate
+
+### Les 4 bases azotées
+- C: Cytosine 
+- A: Adénine
+- G: Guanine
+- T: Thymine
+
+### Appariement des bases
+- Les bases s'agencent entre elles pour former des paires de bases: A/T ou G/C (complémentaire)
+- Adénine - Thymine: 2 liens
+- Cytosine - Guanine: 3 liens
+
+# Organisation de l'ADN
+
+## Différenciation des gènes
+C'est le nombre et la séquence des bases azotées qui différencient un gène d'un autre gène.
+
+## Faits importants
+- Le noyau des cellules humaines compte environ 20 000 gènes
+
+## Niveaux d'organisation de l'ADN (du plus simple au plus complexe)
+1. Base azotée
+2. Double hélice
+3. Gène
+4. Chromosome
+5. Génome
+
+## Niveaux de condensation de l'ADN
+1. Double brin d'ADN
+2. Brin de chromatine: ADN associé à l'histone dans des nucléotides
+3. Chromosome avec un centromère
+4. Chromosome condensé lors de la prophase (séquence d'ADN est dupliquée)
+5. Chromosome encore plus condensé pendant la métaphase (duplication des cellules)
+
+## Caryotype
+- Un montage photographique des chromosomes organisés par pair homologue
+- La 23e paire de chromosomes est différente selon le sexe:
+ - XX pour la femme
+ - XY pour l'homme
+
+ # Les chromosomes et l'ADN
+
+## Définitions clés
+- **Chromosomes**: Hélice d'ADN enroulée sur elle-même formant un bâtonnet visible au microscope (seulement lors de la division cellulaire)
+- **Génome**: Ensemble de l'information génétique complète d'un vivant (46 chromosomes chez l'humain)
+
+## Composition des cellules
+- La plupart de nos cellules contiennent 46 chromosomes (diploïdes)
+- Les gamètes contiennent 23 chromosomes (haploïdes)
+ - Pour permettre le rétablissement des 23 paires lors de la fécondation
+- Dans chaque paire de chromosomes:
+ - Un exemplaire provenant de la mère
+ - L'autre provenant du père
+
+## Mots croisés sur l'ADN
+
+### Horizontal
+1. Chacun est constitué de plusieurs centaines de gènes (CHROMOSOME)
+2. Une unité d'information génétique déterminant un caractère précis (GENE)
+3. Modification de l'information génétique dans le génome d'une cellule ou d'un virus (MUTATION)
+4. Base azotée qui se lie avec la guanine (CYTOSINE)
+5. On la trouve sous forme de nucléotide dans l'ADN, liée avec Cytosine (GUANINE)
+
+### Vertical
+1. Caractéristique de la base qui constitue les "barreaux" de l'ADN
+2. Polymère composé de plusieurs acides aminés
+3. Ensemble complet du matériel génétique d'un individu
+4. Se dit des molécules acides pouvant se lier pour former des protéines
+5. Base azotée liée à l'adénine dans l'ADN
+6. Se dit d'une cellule lorsque les chromosomes sont présents par paires
+7. Qualificatif général d'une molécule acide dans le noyau
+8. Se trouve sous forme de nucléotide dans l'ADN, liée avec la thymine
+
+## Concepts clés de l'ADN
+- L'ADN est une grosse molécule contenant notre code génétique
+- Un gène est une partie de l'ADN contenant l'information pour une caractéristique précise
+- Avant la division cellulaire, l'ADN se condense et s'enroule pour former des chromosomes
+- Chez l'humain:
+ - 23 paires de chromosomes (46 total)
+ - Entre 20,000 et 25,000 gènes répartis sur les chromosomes
+
+ # La division cellulaire et la reproduction
+
+## La mitose
+- Processus de division cellulaire qui permet aux cellules diploïdes (2n) de se multiplier
+- Produit deux cellules filles diploïdes identiques à la cellule mère
+- Permet à l'organisme de croître et renouveler ses cellules endommagées ou mortes
+
+## Phases de la mitose
+
+### 1. Interphase
+- Vie de la cellule:
+ - La cellule traite du glucose pour avoir de l'énergie
+ - Elle fabrique des protéines (ribosomes)
+ - Le volume de la cellule augmente, devient une cellule-mère
+ - Les molécules d'ADN se dédoublent
+
+### 2. Prophase
+- Les molécules d'ADN dédoublés vont s'enrouler et deviennent visibles (chromosomes)
+- La membrane nucléaire se fragmente jusqu'à disparaître complètement
+
+### 3. Métaphase
+- Il n'y a plus de membrane nucléaire
+- Les chromosomes s'alignent au centre de la cellule et forment la plaque équatoriale
+
+### 4. Anaphase
+- Chaque chromosome se sépare en deux
+- L'original et la copie migrent vers des pôles opposés de la cellule
+
+### 5. Télophase
+- Il y a un étranglement central de la membrane cytoplasmique
+- L'étranglement se poursuit jusqu'à l'obtention de deux cellules distinctes
+- La membrane nucléaire réapparaît
+
+## Grille de mots croisés sur la mitose
+### Horizontal
+1. Chromosomes (46 chez l'humain)
+2. Cellules identiques de la mitose
+3. Points opposés pour chromosomes et centrosomes
+4. Cellule à chromosomes pairs (père/mère)
+5. Migration vers les pôles
+6. Division du cytoplasme
+7. Phase de migration des centrosomes
+8. Phase de nutrition cellulaire
+
+### Vertical
+1. Cellules à 23 chromosomes
+2. État du chromosome dupliqué
+3. Membrane du noyau
+4. Séparation des chromosomes
+5. État final des cellules
+6. Contrôle entrées/sorties
+7. Phase d'alignement chromosomique
+
+## La méiose
+- Processus de division cellulaire pour cellules diploïdes (2n)
+- Génère des gamètes (cellules haploïdes)
+- Séparation aléatoire des chromosomes homologues
+- Recombinaison par "enjambement" créant diversité génétique
+
+## Comparaison mitose/méiose
+### Mitose
+- Cellules mères: Diploïdes (2n)
+- Lieu: Partout dans le corps
+- Cellules filles: 2 cellules diploïdes identiques
+- Fonctions: Croissance et régénération
+- Avantage: Permet la vie
+
+### Méiose
+- Cellules mères: Diploïdes (2n)
+- Lieu: Testicules et ovaires
+- Cellules filles: 4 cellules haploïdes différentes
+- Fonctions: Formation de gamètes
+- Avantage: Reproduction sexuée/diversité génétique
+
+# L'organisation du corps humain
+
+## Organisation des cellules
+Hiérarchie (du plus simple au plus complexe):
+1. Atome
+2. Molécule
+3. Cellule
+4. Tissu
+5. Organe
+6. Système
+7. Organisme
+
+## Différenciation cellulaire
+- Processus au cours duquel les cellules de l'embryon ou cellules souches se spécialisent 
+- Environ 200 types de cellules dans le corps humain
+- Types de cellules spécialisées:
+ - Gamètes
+ - Cellules musculaires
+ - Cellule adipeuse
+ - Cellule osseuse
+ - Globule rouge
+ - Neurone
+ - Cellule de peau
+ - Cellule buccale
+
+## Les quatre types de tissus
+
+| Type de tissu | Fonction | Exemples |
+|---------------|-----------|-----------|
+| Tissu épithélial | Recouvre et protège | - L'épiderme<br>- La paroi intestinale<br>- L'épithélium buccal |
+| Tissu conjonctif | Isole, protège et supporte | - Sang<br>- Os<br>- Ligament |
+| Tissu nerveux | - Commande de l'organisme<br>- Recueil d'information | - Cerveau<br>- Nerf<br>- Neurones |
+| Tissu musculaire | Permet le mouvement (contraction) | - Le cœur<br>- Le biceps<br>- La vessie |
+
+## Les systèmes du corps humain
+
+| Système | Fonctions principales |
+|---------|---------------------|
+| Digestif | Faire la digestion physique et chimique des aliments et absorber les nutriments |
+| Excréteur | Élimination des déchets |
+| Respiratoire | Absorption de l'oxygène et excrétion du dioxyde de carbone |
+| Reproducteur | Production de gamètes, reproduction de l'espèce |
+| Musculaire/squelettique | Permettre le mouvement |
+| Nerveux | Transmission, rétention et utilisation de l'information électrique |
+| Lymphatique | Circulation de la lymphe, contribue à la protection contre les infections et le cancer |
+| Circulatoire | Transport des éléments essentiels vers les cellules |
+
+## Principaux organes
+- Intestin
+- Cerveau
+- Cœur
+- Reins
+- Vessie
+- Foie
+- Estomac
+- Pancréas
+- Rate
+- Poumon
+- Peau
+- Muscles squelettiques
+`;
 
             sourceBtn.addEventListener('click', () => {
-                sourceContent.innerHTML = sourceText;
+                // Convertir le markdown en HTML et ajouter la classe pour le style
+                sourceContent.innerHTML = `<div class="markdown-content">${md.render(sourceText)}</div>`;
                 sourceDialog.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             });
