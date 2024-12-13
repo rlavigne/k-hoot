@@ -28,19 +28,56 @@
                 min-height: 100vh;
             }
 
-            section {
-                height: 100%;
-                border-radius: 0 !important;
-                display: flex;
-                flex-direction: column;
-                background: transparent !important;
-                box-shadow: none !important;
+            /* Tous les textes en blanc par défaut */
+            h1, h2, h3, p, span, button, div {
+                color: white;
             }
 
-            #quiz {
-                flex: 1;
+            /* Exception pour la question qui doit rester sur fond blanc */
+            .question {
+                background-color: rgba(255, 255, 255, 0.95);
+                color: #220420 !important;
+                font-size: 2rem !important;
+                padding: 2.5rem !important;
+                margin: 1.5rem;
+                border-radius: 1.5rem;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                min-height: 150px;
                 display: flex;
-                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                font-weight: bold;
+                margin-bottom: 1rem;
+            }
+
+            /* Ajouter une règle plus spécifique pour la question */
+            #question.question,
+            #question.question * {
+                color: #220420 !important;
+            }
+
+            /* Ajuster les couleurs des boutons spécifiques */
+            #restart-btn {
+                color: #ef4444;
+            }
+
+            #source-btn {
+                color: #3b82f6;
+            }
+
+            #restart-btn:hover {
+                color: #b91c1c;
+            }
+
+            #source-btn:hover {
+                color: #2563eb;
+            }
+
+            /* Ajuster le titre du quiz */
+            .quiz-title {
+                color: white !important;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
             }
 
             /* Progress and Timer Bars */
@@ -483,6 +520,44 @@
                     transform: rotate(360deg);
                 }
             }
+
+            #start-screen {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 2rem;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 1rem;
+                margin: 2rem;
+            }
+
+            #start-btn {
+                background: linear-gradient(135deg, #32ab14 0%, #26890c 100%);
+                color: white;
+                padding: 1rem 3rem;
+                border-radius: 0.5rem;
+                font-size: 1.5rem;
+                font-weight: bold;
+                border: none;
+                cursor: pointer;
+                margin-top: 2rem;
+                transition: all 0.2s ease;
+            }
+
+            #start-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(50, 171, 20, 0.3);
+            }
+
+            .quiz-container {
+                display: none;
+            }
+
+            .quiz-container.active {
+                display: block;
+            }
         </style>
     </head>
     <body class="bg-gray-100 text-gray-800">
@@ -493,9 +568,15 @@
             </div>
         </div>
         <main class="container mx-auto">
-            <section class="bg-white shadow-lg">
+            <div id="start-screen">
+                <h1 class="text-4xl font-bold mb-4 quiz-title">Quiz histoire du Québec</h1>
+                <p class="text-xl mb-8">63 questions sur le Régime français</p>
+                <button id="start-btn">Commencer le quiz</button>
+            </div>
+
+            <div id="quiz-container" class="quiz-container">
                 <div class="flex justify-between items-center px-4">
-                    <h1 class="text-2xl font-bold text-center text-blue-600">
+                    <h1 class="text-2xl font-bold text-center quiz-title">
                         Quiz Interactif
                     </h1>
                     <div class="flex gap-4">
@@ -549,7 +630,7 @@
                     </div>
                     <div class="choices grid grid-cols-2" id="choices"></div>
                 </div>
-            </section>
+            </div>
         </main>
 
         <div
@@ -836,7 +917,7 @@
       "correct_answer": 0
     },
     {
-      "question_text": "selon l’étude statistique des caractéristiques de la population réalisée en 1665-1666, combien y avait-il d'hommes et de femmes dans la colonie ?",
+      "question_text": "selon l'étude statistique des caractéristiques de la population réalisée en 1665-1666, combien y avait-il d'hommes et de femmes dans la colonie ?",
       "choices": [
         "1500 hommes et 800 femmes",
         "2034 hommes et 1181 femmes",
@@ -1247,6 +1328,8 @@
                     this.progressBar = document.getElementById('progress');
                     this.questionCounterElement = document.getElementById('question-counter');
                     this.loaderElement = document.getElementById('loader');
+                    this.startScreen = document.getElementById('start-screen');
+                    this.quizContainer = document.getElementById('quiz-container');
 
                     // État initial
                     this.currentQuestionIndex = 0;
@@ -1255,12 +1338,14 @@
                     this.totalQuestions = 63;
                     this.timeLeft = 0;
                     this.timerId = null;
-                    this.isLoading = true;
+                    this.isLoading = false;
+                    this.isActive = false;
 
-                    // Initialiser le quiz
-                    this.initQuiz();
+                    // Cacher le loader au démarrage
+                    this.loaderElement.style.display = 'none';
 
-                    // Ajouter l'écouteur pour le bouton recommencer
+                    // Event listeners
+                    document.getElementById('start-btn').addEventListener('click', () => this.startQuiz());
                     document.getElementById('restart-btn').addEventListener('click', () => this.restartQuiz());
                 }
 
@@ -1270,6 +1355,17 @@
                         [array[i], array[j]] = [array[j], array[i]];
                     }
                     return array;
+                }
+
+                startQuiz() {
+                    this.startScreen.style.display = 'none';
+                    this.quizContainer.classList.add('active');
+                    this.loaderElement.style.display = 'flex';
+                    this.isLoading = true;
+                    
+                    setTimeout(() => {
+                        this.initQuiz();
+                    }, 500);
                 }
 
                 initQuiz() {
@@ -1282,15 +1378,21 @@
                     }, 500);
 
                     this.isLoading = false;
+                    this.isActive = true;
                     this.displayQuestion();
                     
-                    this.choicesElement.addEventListener('click', (e) => {
+                    // Retirer l'ancien écouteur s'il existe
+                    this.choicesElement.removeEventListener('click', this.handleChoice);
+                    
+                    // Ajouter le nouvel écouteur
+                    this.handleChoice = (e) => {
                         const button = e.target.closest('button');
-                        if (button && !this.isLoading) {
+                        if (button && !this.isLoading && this.isActive) {
                             const choice = parseInt(button.dataset.choice);
                             this.checkAnswer(choice);
                         }
-                    });
+                    };
+                    this.choicesElement.addEventListener('click', this.handleChoice);
                 }
 
                 goToNextQuestion() {
@@ -1302,6 +1404,36 @@
 
                     this.questionCounterElement.textContent = `Question ${this.currentQuestionIndex + 1}/${this.totalQuestions}`;
                     this.displayQuestion();
+                }
+
+                restartQuiz() {
+                    // Réinitialiser les états
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.timeLeft = 0;
+                    this.isActive = false;
+                    
+                    // Réinitialiser le timer
+                    if (this.timerId) {
+                        clearInterval(this.timerId);
+                    }
+                    
+                    // Réinitialiser la barre de progression
+                    this.progressBar.style.width = '0%';
+                    
+                    // Cacher le quiz et montrer l'écran de démarrage
+                    this.quizContainer.classList.remove('active');
+                    this.startScreen.style.display = 'flex';
+                    
+                    // Réinitialiser l'affichage
+                    this.scoreElement.textContent = '0 points';
+                    this.questionCounterElement.textContent = `Question 1/${this.totalQuestions}`;
+                    document.querySelector('.timer-container').style.display = 'block';
+                    
+                    // Vider les questions
+                    this.questions = [];
+                    this.questionElement.textContent = '';
+                    this.choicesElement.innerHTML = '';
                 }
 
                 displayQuestion() {
@@ -1354,17 +1486,6 @@
 
                         this.startTimer();
                     }
-                }
-
-                restartQuiz() {
-                    this.currentQuestionIndex = 0;
-                    this.score = 0;
-                    this.scoreElement.textContent = '0 points';
-                    this.questions = this.shuffleArray([...QUESTIONS_DATA.questions]);
-                    this.questionCounterElement.textContent = `Question 1/${this.totalQuestions}`;
-                    document.querySelector('.timer-container').style.display = 'block';
-                    this.displayQuestion();
-                    this.updateProgress();
                 }
 
                 checkAnswer(choice) {
@@ -1440,9 +1561,9 @@
                 }
 
                 showFinalScore() {
+                    this.isActive = false;
                     this.questionElement.textContent = `Quiz terminé! Score final: ${this.score} points 👍`;
                     this.choicesElement.innerHTML = '';
-                    // Cacher les éléments de jeu
                     document.querySelector('.timer-container').style.display = 'none';
                 }
 
